@@ -36,7 +36,14 @@ var onDrop = function(source, target) {
 // for castling, en passant, pawn promotion
 var onSnapEnd = function() {
   board.position(game.fen());
+  $('#undo_move').bind('click', function() {
+    undo_move();
+  });
+  $('#submit_move').bind('click', function() {
+    submit_move();
+  });  
   freeze_game();
+
 };
 
 var updateStatus = function() {
@@ -85,15 +92,30 @@ var new_game = function () {
 }
 
 updateStatus();
+
+
 /////////////////////////////////////////////////////////
+
+var submit_move = (function() {
+      $.getJSON('/_get_fen', {
+        fen_move: game.fen(),
+        game_id: window.location.pathname,
+      }, function(data) {
+        return;
+    });
+    $("#undo_move").unbind();    
+})
+
+var undo_move = (function () {
+    alert('undoing');
+    game.undo();
+    board = new_game();
+    set_orientation();
+    updateStatus();
+})
 
 var freeze_game = (function() {
       board = ChessBoard('board', game.fen());
-      $.getJSON('/_get_fen', {
-        a: game.fen(),
-      }, function(data) {
-        return;
-      });
       set_orientation();
 });
 
@@ -112,4 +134,5 @@ else {
   board = new_game();
 };
 set_orientation();
+
 

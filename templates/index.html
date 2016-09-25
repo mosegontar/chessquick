@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="board" style="width: 40%"></div>
 <p>Status: <span id="status"></span></p>
-<p>FEN: <span id="fen"></span></p>
-<p>PGN: <span id="pgn"></span></p>
+<div id="board" style="width: 40%"></div>
 <script src="{{url_for('static', filename='js/game.js') }} "></script>
+<p></p>
+<a href=# id=submit_move>Submit Move</a>
+<a href=# id=undo_move>Undo Move</a>
 {% endblock %}
