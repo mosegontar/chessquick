@@ -2,7 +2,8 @@
 
 {% block content %}
 <div id="board" style="width: 40%"></div>
-<script>
-    board = ChessBoard('board')  
-</script>    
+<p>Status: <span id="status"></span></p>
+<p>FEN: <span id="fen"></span></p>
+<p>PGN: <span id="pgn"></span></p>
+<script src="{{url_for('static', filename='js/game.js') }} "></script>
 {% endblock %}
