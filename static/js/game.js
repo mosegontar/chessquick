@@ -1,9 +1,13 @@
-var current_player = "b";
-var current_fen = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
+
+
 var board,
   game = new Chess(current_fen),
   statusEl = $('#status'),
   fenEl = $('#fen');
+
+if (current_player === '') {
+  current_player = prompt('W/B ?')  
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /* Code integrating ChessBoardJS with ChessJS from ChessBoardJS example:
@@ -100,8 +104,9 @@ var submit_move = (function() {
       $.getJSON('/_get_fen', {
         fen_move: game.fen(),
         game_id: window.location.pathname,
+        current_player: current_player,
       }, function(data) {
-        return;
+        window.location.assign(root_path+data.game_url);
     });
     $("#undo_move").unbind();    
 })
