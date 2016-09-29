@@ -6,7 +6,7 @@ var board,
   fenEl = $('#fen');
 
 if (current_player === '') {
-  current_player = prompt('W/B ?')  
+  current_player = prompt('W/B ?').toLowerCase();  
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,6 @@ var submit_move = (function() {
 })
 
 var undo_move = (function () {
-    alert('undoing');
     game.undo();
     board = new_game();
     set_orientation();

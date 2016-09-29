@@ -2,8 +2,18 @@
 
 {% block content %}
 <p>Status: {{ fender }} <span id="status"></span></p>
-<div id="board" style="width: 100%"></div>
+{% if game_url|length > 1 %}
+    <button onClick="share()">Share!</button>
+{% endif %} 
+   
+<script>
+    function share()  {
+        prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
+    } 
+</script>
 
+
+<div id="board" style="width: 100%"></div>
 <script>
     var current_player = '{{ current_player }}'
     var current_fen = '{{ fen }}'
@@ -13,6 +23,6 @@
 <script src="{{url_for('static', filename='js/game.js') }} "></script>
 
 <p></p>
-<a href=# id=submit_move></a>
-<a href=# id=undo_move></a>
+<button id=submit_move></button>
+<button id=undo_move></button>
 {% endblock %}
