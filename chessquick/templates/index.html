@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<span id="status"></span></i>
+<span id="status"></span></i>{% if round_date %} Last move:{{ round_date }} {% endif %}
 <script>
     function share()  {
         prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");

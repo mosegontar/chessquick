@@ -28,10 +28,12 @@ def index(game_url='/'):
     existing_game = Games.query.filter_by(game_id=game_id).all() if game_id else None
 
     if not existing_game:
-        fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
+        date_of_turn = None
     else:
         most_recent_round = existing_game[-1]
+        date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
         current_player = session[game_id] if game_id in session.keys() else ''
 
@@ -39,4 +41,5 @@ def index(game_url='/'):
                            fen=fen, 
                            current_player=current_player,
                            root_path = request.url_root,
-                           game_url=game_url)                          
+                           game_url=game_url,
+                           round_date=date_of_turn)                          
