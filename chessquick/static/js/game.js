@@ -1,12 +1,11 @@
 
-
 var board,
   game = new Chess(current_fen),
   statusEl = $('#status'),
   fenEl = $('#fen');
 
 if (current_player === '') {
-  current_player = prompt('W/B ?').toLowerCase();  
+  current_player = game.turn();  
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,6 +33,9 @@ var onDrop = function(source, target) {
   // illegal move
   if (move === null) return 'snapback';
   updateStatus();
+  $("#submit_move").hide();
+  document.getElementById('submit_move').style.display = 'inline';
+  document.getElementById('undo_move').style.display = 'inline';
   document.getElementById('submit_move').innerHTML = 'Submit Move';
   document.getElementById('undo_move').innerHTML = ' Undo Move';
 
@@ -118,6 +120,8 @@ var undo_move = (function () {
     game.undo();
     board = new_game();
     set_orientation();
+    document.getElementById('submit_move').style.display = 'none';
+    document.getElementById('undo_move').style.display = 'none';    
     document.getElementById('submit_move').innerHTML = '';
     document.getElementById('undo_move').innerHTML = '';    
     updateStatus();
