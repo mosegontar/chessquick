@@ -1,22 +1,22 @@
+import datetime
 
 from flask import   render_template, url_for, request, jsonify, session
 
 from chessquick import app
-from chessquick.models import Games, make_new_game, add_turn_to_game
+from chessquick.models import Games, add_turn_to_game
 
 
 @app.route('/_get_fen')
 def get_fen():
+
     fen = request.args.get('fen_move')
     game_url = request.args.get('game_id')
     current_player = request.args.get('current_player')
     game_id = game_url.strip('/')
+    time_of_turn = datetime.datetime.utcnow()
 
-    if not game_id: 
-        game_id = make_new_game()
-
+    game_id = add_turn_to_game(game_id, fen, time_of_turn)
     session[game_id] = current_player
-    add_turn_to_game(game_id, fen)
 
     return jsonify(game_url=game_id)
 

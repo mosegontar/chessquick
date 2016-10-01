@@ -19,19 +19,23 @@
     }
 }
 
+nav span a {
+    text-decoration: none;
+}
 
 </style>
 </head>
 
 <body>
-<nav style="display:block; background-color: red; margin-top: 1em;">
-    <b>chessquick! </b><i>
-    <a href=# style="float: right;">Login</a>
-    <a href='/'>New Game</a> |
-    <a href=#>Settings</a>
+<nav style="display:block; border-bottom: solid; border-width: thin; margin-top: 1em; padding-bottom: 1em;">
+    <span style="float:left;"><b>chessquick!</b></span>
+    <span style="float:right;">
+        <a href=#>Login</a> |
+        <a href='/'>New Game</a> |
+        <a href=#>Settings</a>
+    </span>
 </nav>
 <br/>
-<span id="status"></span></i>
 {% block content %}{% endblock %}
 </body>
 </html>
