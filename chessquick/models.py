@@ -24,7 +24,11 @@ def make_new_game(date_of_turn):
         if not url_exists:
             break
 
-    new_game = Games(game_id=game_id, turn_number=0, date_of_turn=date_of_turn, fen_string='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+    new_game = Games(game_id=game_id, 
+                     turn_number=0, 
+                     date_of_turn=date_of_turn, 
+                     fen_string=app.config['STARTING_FEN_STRING'])
+    
     db.session.add(new_game)
     db.session.commit()
 
