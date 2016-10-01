@@ -10,15 +10,28 @@
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
+<style>
+
+@media only screen and (min-width:992px) {
+    body {
+        margin: 0 auto;
+        width:40%;
+    }
+}
+
+
+</style>
 </head>
 
 <body>
-<nav style="display:block; background-color: red;">
+<nav style="display:block; background-color: red; margin-top: 1em;">
+    <b>chessquick! </b><i>
     <a href=# style="float: right;">Login</a>
     <a href='/'>New Game</a> |
     <a href=#>Settings</a>
 </nav>
-<h3><i>chessquick!</i></h3>
+<br/>
+<span id="status"></span></i>
 {% block content %}{% endblock %}
 </body>
 </html>
