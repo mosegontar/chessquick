@@ -20,6 +20,12 @@ def get_fen():
 
     return jsonify(game_url=game_id)
 
+@app.route('/login')
+@app.route('/login/<game_url>')
+def login(game_url=None):    
+    print('game-url is ', game_url)
+    return render_template('login.html')
+
 @app.route('/')
 @app.route('/<game_url>')
 def index(game_url='/'):

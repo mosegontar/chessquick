@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, height=device-heihgt, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
     <title>Chessquick!</title>
     <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
@@ -33,7 +33,10 @@ nav span a {
     <span style="float:right;">
         <a href='/'>New Game</a> |
         <a href=#>Settings</a> |
-        <a href=#>Login</a>        
+        <a id=loginLink href=/login>Login</a> 
+        {% if game_url|length > 1 %}       
+            <script>$("#loginLink").attr('href', '/login/{{ game_url }}')</script>
+        {% endif %}
     </span>
 </nav>
 
