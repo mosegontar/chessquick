@@ -36,9 +36,6 @@ var onDrop = function(source, target) {
   $("#submit_move").hide();
   document.getElementById('submit_move').style.display = 'inline';
   document.getElementById('undo_move').style.display = 'inline';
-  document.getElementById('submit_move').innerHTML = 'Submit Move';
-  document.getElementById('undo_move').innerHTML = ' Undo Move';
-
 };
 
 // update the board position after the piece snap 
@@ -122,8 +119,6 @@ var undo_move = (function () {
     set_orientation();
     document.getElementById('submit_move').style.display = 'none';
     document.getElementById('undo_move').style.display = 'none';    
-    document.getElementById('submit_move').innerHTML = '';
-    document.getElementById('undo_move').innerHTML = '';    
     updateStatus();
 })
 

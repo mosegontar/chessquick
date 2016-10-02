@@ -12,10 +12,10 @@ def get_fen():
     fen = request.args.get('fen_move')
     game_url = request.args.get('game_id')
     current_player = request.args.get('current_player')
-    game_id = game_url.strip('/')
+    _game_id = game_url.strip('/')
     time_of_turn = datetime.datetime.utcnow()
 
-    game_id = add_turn_to_game(game_id, fen, time_of_turn)
+    game_id = add_turn_to_game(_game_id, fen, time_of_turn)
     session[game_id] = current_player
 
     return jsonify(game_url=game_id)

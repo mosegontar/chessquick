@@ -27,14 +27,16 @@ nav span a {
 </head>
 
 <body>
-<nav style="display:block; border-bottom: solid; border-width: thin; margin-top: 1em; padding-bottom: 1em;">
+
+<nav style="display:block; border-bottom: solid; border-width: thin; margin-top: 1em; padding-bottom: 1.25em;">
     <span style="float:left;"><b>chessquick!</b></span>
     <span style="float:right;">
-        <a href=#>Login</a> |
         <a href='/'>New Game</a> |
-        <a href=#>Settings</a>
+        <a href=#>Settings</a> |
+        <a href=#>Login</a>        
     </span>
 </nav>
+
 <br/>
 {% block content %}{% endblock %}
 </body>
