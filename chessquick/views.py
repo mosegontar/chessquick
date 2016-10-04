@@ -1,10 +1,10 @@
 import datetime
 
-from flask import   render_template, url_for, request, jsonify, session
+from flask import   render_template, url_for, request, jsonify, session, redirect
 
-from chessquick import app
-from chessquick.models import Games, add_turn_to_game
-
+from chessquick import app, db
+from chessquick.models import Games, Users
+from chessquick.forms import EmailPasswordForm
 
 @app.route('/_get_fen')
 def get_fen():
@@ -15,21 +15,40 @@ def get_fen():
     _game_id = game_url.strip('/')
     time_of_turn = datetime.datetime.utcnow()
 
-    game_id = add_turn_to_game(_game_id, fen, time_of_turn)
+    game_id = Games.add_turn_to_game(_game_id, fen, time_of_turn)
     session[game_id] = current_player
 
     return jsonify(game_url=game_id)
 
-@app.route('/login')
-@app.route('/login/<game_url>')
-def login(game_url=None):    
-    print('game-url is ', game_url)
-    return render_template('login.html')
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = EmailPasswordForm()
+    if form.validate_on_submit():
+        user = Users(email=form.email.data, password=form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('signup.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+#@app.route('/login/<game_url>')
+def login():#(game_url=None):
+    form = EmailPasswordForm()
+    if form.validate_on_submit():
+        # Check the password and log the user in
+
+        return redirect(url_for('index'))
+    return render_template('login.html', form=form)
 
 @app.route('/')
 @app.route('/<game_url>')
 def index(game_url='/'):
-
+    users = Users.query.all()
+    for u in users:
+        print('========')
+        print(u.email)
+        print('========')
     game_id = game_url.strip('/')
     existing_game = Games.query.filter_by(game_id=game_id).all() if game_id else None
 
