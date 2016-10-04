@@ -1,10 +1,15 @@
 import datetime
 
 from flask import   render_template, url_for, request, jsonify, session, redirect
+from flask_login import login_user
 
-from chessquick import app, db
+from chessquick import app, db, login_manager
 from chessquick.models import Games, Users
 from chessquick.forms import EmailPasswordForm
+
+@login_manager.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
 
 @app.route('/_get_fen')
 def get_fen():
@@ -36,9 +41,13 @@ def signup():
 def login():#(game_url=None):
     form = EmailPasswordForm()
     if form.validate_on_submit():
-        # Check the password and log the user in
-
-        return redirect(url_for('index'))
+        user = Users.query.filter_by(email=form.email.data).first_or_404()
+        if user.is_correct_password(form.password.data):
+            login_user(user)
+            print(user.email, "LOGIN SUCCESSFUL :)")
+            return redirect(url_for('index'))
+        else:
+            return redirect(url_for('login'))
     return render_template('login.html', form=form)
 
 @app.route('/')

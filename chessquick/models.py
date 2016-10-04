@@ -19,7 +19,31 @@ class Users(db.Model):
 
     @password.setter
     def _set_password(self, plaintext):
-        self._password = bcrypt.generate_password_hash(plaintext)
+        # encoding/decoding utf-8: 
+        # http://stackoverflow.com/questions/34548846/flask-bcrypt-valueerror-invalid-salt
+        self._password = bcrypt.generate_password_hash(plaintext.encode('utf-8')).decode('utf-8')
+
+    def is_correct_password(self, plaintext):
+        return bcrypt.check_password_hash(self._password, plaintext)
+
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
     
 """
 class Matches(db.Model):
