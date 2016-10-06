@@ -105,7 +105,7 @@ updateStatus();
 var submit_move = (function() {
       $.getJSON($SCRIPT_ROOT + '/_get_fen', {
         fen_move: game.fen(),
-        game_id: window.location.pathname,
+        match_url: window.location.pathname,
         current_player: current_player,
       }, function(data) {
         window.location.assign(root_path+data.game_url);

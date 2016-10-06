@@ -1,29 +1,36 @@
 import datetime
 
-from flask import   render_template, url_for, request, jsonify, session, redirect
-from flask_login import login_user
+from flask import   render_template, url_for, request, jsonify, session, redirect, g
+from flask_login import login_user, logout_user, current_user, login_required
 
 from chessquick import app, db, login_manager
-from chessquick.models import Games, Users
+from chessquick.models import Rounds, Users
 from chessquick.forms import EmailPasswordForm
+
 
 @login_manager.user_loader
 def load_user(id):
     return Users.query.get(int(id))
 
+
+@app.before_request
+def before_request():
+    g.user = current_user
+
+
 @app.route('/_get_fen')
 def get_fen():
 
     fen = request.args.get('fen_move')
-    game_url = request.args.get('game_id')
+    game_url = request.args.get('match_url')
     current_player = request.args.get('current_player')
-    _game_id = game_url.strip('/')
+    _match_url = game_url.strip('/')
     time_of_turn = datetime.datetime.utcnow()
 
-    game_id = Games.add_turn_to_game(_game_id, fen, time_of_turn)
-    session[game_id] = current_player
+    match_url = Rounds.add_turn_to_game(_match_url, fen, time_of_turn)
+    session[match_url] = current_player
 
-    return jsonify(game_url=game_id)
+    return jsonify(game_url=match_url)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -39,15 +46,20 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 #@app.route('/login/<game_url>')
 def login():#(game_url=None):
+    if g.user is not None and g.user.is_authenticated:
+        return redirect(url_for('index'))
+
     form = EmailPasswordForm()
+
     if form.validate_on_submit():
-        user = Users.query.filter_by(email=form.email.data).first_or_404()
-        if user.is_correct_password(form.password.data):
+        user = Users.query.filter_by(email=form.email.data).first()
+        
+        if user and user.is_correct_password(form.password.data):
             login_user(user)
-            print(user.email, "LOGIN SUCCESSFUL :)")
             return redirect(url_for('index'))
         else:
             return redirect(url_for('login'))
+
     return render_template('login.html', form=form)
 
 @app.route('/')
@@ -58,8 +70,9 @@ def index(game_url='/'):
         print('========')
         print(u.email)
         print('========')
-    game_id = game_url.strip('/')
-    existing_game = Games.query.filter_by(game_id=game_id).all() if game_id else None
+
+    match_url = game_url.strip('/')
+    existing_game = Rounds.query.filter_by(match_url=match_url).all() if match_url else None
 
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
@@ -69,7 +82,7 @@ def index(game_url='/'):
         most_recent_round = existing_game[-1]
         date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
-        current_player = session[game_id] if game_id in session.keys() else ''
+        current_player = session[match_url] if match_url in session.keys() else ''
 
     return render_template('index.html', 
                            fen=fen, 
