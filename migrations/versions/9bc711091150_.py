@@ -19,7 +19,6 @@ def upgrade():
     op.add_column('matches', sa.Column('black_player_id', sa.Integer(), nullable=True))
     op.add_column('matches', sa.Column('match_url', sa.String(length=8), nullable=True))
     op.add_column('matches', sa.Column('white_player_id', sa.Integer(), nullable=True))
-    op.create_unique_constraint(None, 'matches', ['match_url'])
     op.drop_constraint('matches_black_player_fkey', 'matches', type_='foreignkey')
     op.drop_constraint('matches_white_player_fkey', 'matches', type_='foreignkey')
     op.create_foreign_key(None, 'matches', 'users', ['black_player_id'], ['id'])

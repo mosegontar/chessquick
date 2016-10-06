@@ -5,7 +5,7 @@ from flask import   render_template, url_for, request, jsonify, session, \
 from flask_login import login_user, logout_user, current_user, login_required
 
 from chessquick import app, db, login_manager
-from chessquick.models import Rounds, Users
+from chessquick.models import Rounds, Users, Matches
 from chessquick.forms import EmailPasswordForm
 
 
@@ -17,7 +17,6 @@ def load_user(id):
 @app.before_request
 def before_request():
     g.user = current_user
-
 
 @app.route('/_get_fen')
 def get_fen():
@@ -43,13 +42,15 @@ def signup():
         return redirect(url_for('index'))
     return render_template('signup.html', form=form)
 
+def next_is_valid(endpoint):
+    return endpoint in app.viewfunctions
 
 @app.route('/login', methods=['GET', 'POST'])
 def login(next=None):
 
     game_url = request.args.get('game_url')
     if not game_url: game_url = '/'
-    
+
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index', game_url=game_url))
 
@@ -62,7 +63,7 @@ def login(next=None):
             login_user(user)
             next_url = request.args.get('next')
 
-            if next_url and next_url.strip('/') not in app.view_functions:
+            if next_url and not next_is_valid(next_url.strip('/')):
                 next_url = None
 
             return redirect(next_url or url_for('index', game_url=game_url))
@@ -93,14 +94,15 @@ def index(game_url='/'):
         print('========')
 
     match_url = game_url.strip('/')
-    existing_game = Rounds.query.filter_by(match_url=match_url).all() if match_url else None
+    existing_game = Matches.query.filter_by(match_url=match_url).first() if match_url else None
 
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
     else:
-        most_recent_round = existing_game[-1]
+        game_rounds = existing_game.rounds.all()
+        most_recent_round = game_rounds[-1]
         date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
         current_player = session[match_url] if match_url in session.keys() else ''

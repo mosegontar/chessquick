@@ -12,6 +12,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(120), unique=True)
     _password = db.Column(db.String(128))
+    username = db.Column(db.String(64))
 
     @hybrid_property
     def password(self):
@@ -56,6 +57,24 @@ class Matches(db.Model):
     black_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     white_player = db.relationship('Users', foreign_keys=[white_player_id])
     black_player = db.relationship('Users', foreign_keys=[black_player_id])
+    rounds = db.relationship('Rounds', backref='match', lazy='dynamic')
+
+    @staticmethod
+    def start_new_match():
+
+        while True:
+            _match_url = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)\
+                for _ in range(8))
+            _url_exists = Matches.query.filter_by(match_url=_match_url).first()
+            if not _url_exists:
+                break
+
+        new_match = Matches(match_url=_match_url)
+        db.session.add(new_match)
+        db.session.commit()
+
+        return new_match
+
 
 
 class Rounds(db.Model):
@@ -64,42 +83,40 @@ class Rounds(db.Model):
     __tablename__ = 'rounds'
 
     id = db.Column(db.Integer, primary_key = True)
-    match_url = db.Column(db.String(8))
     turn_number = db.Column(db.Integer)
     date_of_turn = db.Column(db.DateTime)
     fen_string = db.Column(db.String(80))
-
-    @staticmethod
-    def make_new_game(date_of_turn):
-
-        while True:
-            match_url = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) \
-                        for _ in range(8))     
-            url_exists = Rounds.query.filter_by(match_url=match_url).first()
-            if not url_exists:
-                break
-
-        new_game = Rounds(match_url=match_url, 
-                          turn_number=0, 
-                          date_of_turn=date_of_turn, 
-                          fen_string=app.config['STARTING_FEN_STRING'])
-        
-        db.session.add(new_game)
-        db.session.commit()
-
-        return match_url
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'))
 
     @staticmethod
     def add_turn_to_game(match_url, fen, date_of_turn):
 
-        game_rounds = Rounds.query.filter_by(match_url=match_url).all()
-        if not game_rounds:
-            match_url = Rounds.make_new_game(date_of_turn)
-        num_rounds = len(game_rounds) - 1 # because starting position is turn number 0
+        current_match = Matches.query.filter_by(match_url=match_url).first()
+        if not current_match:
+
+            current_match = Matches.start_new_match()
+            initial_round = Rounds(turn_number=0,
+                                   date_of_turn=date_of_turn,
+                                   fen_string=app.config['STARTING_FEN_STRING'])
+            
+            current_match.rounds.append(initial_round)
+
+            db.session.add(current_match)
+            db.session.add(initial_round)
+            db.session.commit()
+
+        num_rounds = len(current_match.rounds.all()) - 1 # because starting position is turn number 0
         turn_number = num_rounds + 1
 
-        turn_entry = Rounds(match_url=match_url, turn_number=turn_number, date_of_turn=date_of_turn, fen_string=fen)
-        db.session.add(turn_entry)
+        round_entry = Rounds(turn_number=turn_number, 
+                             date_of_turn=date_of_turn, 
+                             fen_string=fen)
+
+
+        current_match.rounds.append(round_entry)
+
+        db.session.add(round_entry)
+        db.session.add(current_match)
         db.session.commit()
 
-        return match_url
+        return current_match.match_url
