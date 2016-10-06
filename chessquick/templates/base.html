@@ -33,13 +33,12 @@ nav span a {
     <span style="float:right;">
         <a href='/'>New Game</a> |
         {% if current_user.is_authenticated %}
-            <a href=#>Bookmark</a> |
-            <a href=#>Settings</a> |
-            <a href=#>{{ current_user.email.split('@')[0] }} </a>
+            <a href='/settings'>Settings</a> |
+            <a href='/logout' style="color:#66b266">Logout</a>
         {% else %}
             <a id=loginLink href=/login>Login</a> 
             {% if game_url|length > 1 %}       
-                <script>$("#loginLink").attr('href', '/login/{{ game_url }}')</script>
+                <script>$("#loginLink").attr('href', '/login?game_url={{ game_url }}')</script>
             {% endif %}
         {% endif %}
     </span>

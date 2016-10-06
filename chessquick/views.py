@@ -1,6 +1,7 @@
 import datetime
 
-from flask import   render_template, url_for, request, jsonify, session, redirect, g
+from flask import   render_template, url_for, request, jsonify, session, \
+    redirect, g
 from flask_login import login_user, logout_user, current_user, login_required
 
 from chessquick import app, db, login_manager
@@ -44,10 +45,13 @@ def signup():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-#@app.route('/login/<game_url>')
-def login():#(game_url=None):
+def login(next=None):
+
+    game_url = request.args.get('game_url')
+    if not game_url: game_url = '/'
+    
     if g.user is not None and g.user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('index', game_url=game_url))
 
     form = EmailPasswordForm()
 
@@ -56,15 +60,32 @@ def login():#(game_url=None):
         
         if user and user.is_correct_password(form.password.data):
             login_user(user)
-            return redirect(url_for('index'))
-        else:
-            return redirect(url_for('login'))
+            next_url = request.args.get('next')
 
-    return render_template('login.html', form=form)
+            if next_url and next_url.strip('/') not in app.view_functions:
+                next_url = None
+
+            return redirect(next_url or url_for('index', game_url=game_url))
+        else:
+            return redirect(url_for('login', game_url=game_url))
+
+    return render_template('login.html', form=form, game_url=game_url)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/settings')
+@login_required
+def settings():
+    return render_template('settings.html')
 
 @app.route('/')
 @app.route('/<game_url>')
 def index(game_url='/'):
+
     users = Users.query.all()
     for u in users:
         print('========')
