@@ -25,7 +25,8 @@ def bookmark():
     current_player = request.args.get('current_player')
     action = request.args.get('action')
     match_url = request.args.get('match_url')
-    match = Matches.query.filter_by(match_url=match_url).first()
+
+    match = Matches.get_match_by_url(match_url)
 
     if action == 'bookmark':
 
@@ -54,8 +55,10 @@ def bookmark():
 
     db.session.add(match)
     db.session.commit()
+    white_player_name = match.white_player.email if match.white_player else 'Guest'
+    black_player_name = match.black_player.email if match.black_player else 'Guest'
 
-    return jsonify(game_url=match_url)
+    return jsonify(white_player_name=white_player_name, black_player_name=black_player_name)
 
 
 @app.route('/_get_fen')
@@ -130,7 +133,7 @@ def index(game_url='/'):
     users = Users.query.all()
 
     match_url = game_url.strip('/')
-    existing_game = Matches.query.filter_by(match_url=match_url).first() if match_url else None
+    existing_game = Matches.get_match_by_url(match_url) if match_url else None
 
     taken_players = {'w': False, 'b': False}
     if not existing_game:

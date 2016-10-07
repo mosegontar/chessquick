@@ -55,8 +55,8 @@ class Matches(db.Model):
     match_url = db.Column(db.String(8), unique=True)
     white_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     black_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    white_player = db.relationship('Users', foreign_keys=[white_player_id])
-    black_player = db.relationship('Users', foreign_keys=[black_player_id])
+    _white_player = db.relationship('Users', foreign_keys=[white_player_id])
+    _black_player = db.relationship('Users', foreign_keys=[black_player_id])
     rounds = db.relationship('Rounds', backref='match', lazy='dynamic')
 
     @staticmethod
@@ -74,6 +74,31 @@ class Matches(db.Model):
         db.session.commit()
 
         return new_match
+
+    @staticmethod
+    def get_match_by_url(url):
+        match = Matches.query.filter_by(match_url=url).first()
+        return match
+
+    @hybrid_property
+    def white_player(self):
+        return self._white_player
+
+    @white_player.setter
+    def _set_white_player(self, user):
+        self._white_player = user
+
+    @hybrid_property
+    def black_player(self):
+        return self._black_player
+
+    @black_player.setter
+    def _set_black_player(self, user):
+        self._black_player = user
+
+
+
+
 
 
 
