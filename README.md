@@ -1,2 +1,2 @@
 # Chessquick
-Correspondece chess online
+Correspondence chess online
