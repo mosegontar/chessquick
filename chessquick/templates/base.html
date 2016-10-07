@@ -29,20 +29,30 @@ nav span a {
 <body>
 
 <nav style="display:block; border-bottom: solid; border-width: thin; margin-top: 1em; margin-bottom: 1em; padding-bottom: 1.25em;">
-    <span style="float:left;"><b>chessquick!</b></span>
+    <span style="float:left;"><b><a href='/'>chessquick!</a></b></span>
     <span style="float:right;">
-        <a href='/'>New Game</a> |
+
         {% if current_user.is_authenticated %}
+            
+            {% if game_url|length > 1 %}
+                <a id=bookmark href='/bookmark'>Bookmark Game</a> |
+            {% endif %}
             <a href='/settings'>Settings</a> |
             <a href='/logout' style="color:#66b266">Logout</a>
+
         {% else %}
+
             <a id=loginLink href=/login>Login</a> 
             {% if game_url|length > 1 %}       
                 <script>$("#loginLink").attr('href', '/login?game_url={{ game_url }}')</script>
             {% endif %}
+
         {% endif %}
+        
     </span>
 </nav>
+
 {% block content %}{% endblock %}
+
 </body>
 </html>

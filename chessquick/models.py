@@ -92,6 +92,7 @@ class Rounds(db.Model):
     def add_turn_to_game(match_url, fen, date_of_turn):
 
         current_match = Matches.query.filter_by(match_url=match_url).first()
+        
         if not current_match:
 
             current_match = Matches.start_new_match()
