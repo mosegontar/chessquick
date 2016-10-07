@@ -18,29 +18,44 @@ def load_user(id):
 def before_request():
     g.user = current_user
 
-@app.route('/bookmark', methods=['GET', 'POST'])
+@app.route('/_bookmark')
 @login_required
 def bookmark():
     
     current_player = request.args.get('current_player')
-    match_url = request.args.get('game_url')
+    action = request.args.get('action')
+    match_url = request.args.get('match_url')
     match = Matches.query.filter_by(match_url=match_url).first()
-    
-    if not match or (match.white_player and match.black_player):
-        return redirect(url_for('index'))
-    elif current_player == 'w' and not match.white_player:
-        match.white_player = current_user
-    elif current_player == 'b' and not match.black_player:
-        match.black_player = current_user
+
+    if action == 'bookmark':
+
+        if not match or (match.white_player and match.black_player):
+            return redirect(url_for('index'))
+        elif current_player == 'w' and not match.white_player:
+            match.white_player = current_user
+        elif current_player == 'b' and not match.black_player:
+            match.black_player = current_user
+        else:
+            pass
+
+    elif action == 'unbookmark':
+
+        if not match or (not match.white_player and not match.black_player): 
+            return redirect(url_for('index'))
+        elif current_user == match.white_player:
+            match.white_player = None
+        elif current_user == match.black_player:
+            match.black_player = None
+        else:
+            pass
     else:
         pass
+
 
     db.session.add(match)
     db.session.commit()
 
-    return redirect(url_for('index', game_url=match_url))
-
- 
+    return jsonify(game_url=match_url)
 
 
 @app.route('/_get_fen')
@@ -116,18 +131,15 @@ def index(game_url='/'):
 
     match_url = game_url.strip('/')
     existing_game = Matches.query.filter_by(match_url=match_url).first() if match_url else None
-    unclaimed_players = []
 
+    taken_players = {'w': False, 'b': False}
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
     else:
-        white_is_taken, black_is_taken = existing_game.white_player, existing_game.black_player
-        if not white_is_taken:
-            unclaimed_players.append('w')
-        if not black_is_taken:
-            unclaimed_players.append('b')
+        taken_players['w'] = existing_game.white_player.email if existing_game.white_player else False
+        taken_players['b'] = existing_game.black_player.email if existing_game.black_player else False
 
         game_rounds = existing_game.rounds.all()
         most_recent_round = game_rounds[-1]
@@ -141,4 +153,4 @@ def index(game_url='/'):
                            root_path = request.url_root,
                            game_url=game_url,
                            round_date=date_of_turn,
-                           unclaimed_players=unclaimed_players)                          
+                           taken_players=taken_players)                          

@@ -33,12 +33,9 @@ nav span a {
     <span style="float:right;">
 
         {% if current_user.is_authenticated %}
-            
-            {% if game_url|length > 1 %}
-                <a id=bookmark href='/bookmark'>Bookmark Game</a> |
-            {% endif %}
+            <span id=bookmark></span>
             <a href='/settings'>Settings</a> |
-            <a href='/logout' style="color:#66b266">Logout</a>
+            <a href='/logout'>Logout</a>
 
         {% else %}
 
@@ -48,7 +45,7 @@ nav span a {
             {% endif %}
 
         {% endif %}
-        
+
     </span>
 </nav>
 
