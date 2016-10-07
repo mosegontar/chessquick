@@ -19,16 +19,22 @@
     }
 }
 
+nav {
+    color: black;
+}
+
 nav span a {
     text-decoration: none;
+    color: black;
 }
+
 
 </style>
 </head>
 
-<body>
+<body style="background-color: #FAF8EA;">
 
-<nav style="display:block; border-bottom: solid; border-width: thin; margin-top: 1em; margin-bottom: 1em; padding-bottom: 1.25em;">
+<nav style="display:block; border-bottom: solid; border-width: thin; border-color: black; margin-top: 1em; margin-bottom: .25em; padding-bottom: 1em;">
     <span style="float:left;"><b><a href='/'>chessquick!</a></b></span>
     <span style="float:right;">
 
@@ -48,6 +54,11 @@ nav span a {
 
     </span>
 </nav>
+<div id=infomartion style="width: 100%; margin: 0 auto; height: 5em;">
+<div id=messages style="height: 25%;">
+</div>
+{% block information %}{% endblock %}
+</div>
 
 {% block content %}{% endblock %}
 

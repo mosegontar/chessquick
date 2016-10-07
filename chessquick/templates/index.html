@@ -2,21 +2,34 @@
 
 <!-- <span id="status"></span></i>{% if round_date %} Last move:{{ round_date }} {% endif %}-->
 
+{% block information %}
+<div id=playerInfo style="height: 75%;">
+<table style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
+    <tr>
+        <th></th>
+        <th> Status: </th>
+        <th></th>
+    </tr>
+    <tr>
+        <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">(Guest)</td>
+        <td id=status style="padding: 0 3em 0 3em;">
+        <td id=blackplayer style="background-color: black;color: white; font-style: italic; fon">(Guest)</td>
+    </tr>
+</table>
+    {% if taken_players['w'] %}
+        <script>$('#whiteplayer').text('({{ taken_players["w"][:5]}})');</script>
+    {% endif %}
+</div><br/>
+{% endblock %}
+
+
 {% block content %}
-<div>
+<div style="width: 100%; margin: .25em auto 0 auto; ">
     <script>
         function share()  {
             prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
         };
     </script>
-
-    <div id=playerInfo style="width: 100%; height: 30px;">
-        <p id=whiteplayer style="float:left; display:inline;">White:(Guest)</p>
-        <p style="float: right; display:inline;">Black:(Guest)</p>
-        {% if taken_players['w'] %}
-            <script>$('#whiteplayer').text('White ({{ taken_players["w"][:5]}})');</script>
-        {% endif %}
-    </div><br/>
 
     <div id="board" style="width: 100%"></div>
     <script>
@@ -30,7 +43,8 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#bookmark").replaceWith('<span id=bookmark><a id="bookmark" href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>'); 
+                 $("#bookmark").replaceWith('<span id=bookmark><a id="bookmark" href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
+                 $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
          })};        
 
 
@@ -40,7 +54,8 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>'); 
+                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
+                $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
          })};
 
 
