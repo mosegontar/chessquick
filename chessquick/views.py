@@ -113,10 +113,6 @@ def settings():
 def index(game_url='/'):
 
     users = Users.query.all()
-    for u in users:
-        print('========')
-        print(u.email)
-        print('========')
 
     match_url = game_url.strip('/')
     existing_game = Matches.query.filter_by(match_url=match_url).first() if match_url else None
