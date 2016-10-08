@@ -1,10 +1,11 @@
 import datetime
 
 from flask import   render_template, url_for, request, jsonify, session, \
-    redirect, g, flash
+    redirect, g, flash, make_response
 from flask_login import login_user, logout_user, current_user, login_required
+from authomatic.adapters import WerkzeugAdapter
 
-from chessquick import app, db, login_manager
+from chessquick import app, db, login_manager, authomatic
 from chessquick.models import Rounds, Users, Matches
 from chessquick.forms import EmailPasswordForm
 
@@ -84,15 +85,33 @@ def get_fen():
 def signup():
     form = EmailPasswordForm()
     if form.validate_on_submit():
+        email_exists = Users.query.filter(Users.email==form.email.data).first()
+        if email_exists:
+            flash('A user with the email has already registered')
+            return render_template('signup.html', form=form)
         user = Users(email=form.email.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
+        login_user(user)
         return redirect(url_for('index'))
     return render_template('signup.html', form=form)
 
 def next_is_valid(endpoint):
     return endpoint in app.view_functions
 
+@app.route('/login/<provider_name>', methods=['GET', 'POST'])
+def login_with_oauth(provider_name):
+    response = make_response()
+
+    result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
+
+    if result:
+        if result.user:
+            result.user.update()
+        return "Success"
+    return response
+
+@app.route('/login')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -105,17 +124,20 @@ def login():
     form = EmailPasswordForm()
 
     if form.validate_on_submit():
-        user = Users.query.filter_by(email=form.email.data).first()
-        
+
+        user = Users.query.filter_by(email=form.email.data).first() 
+
         if user and user.is_correct_password(form.password.data):
+            
             login_user(user)
+            
             next_url = request.args.get('next')
-
             if next_url and not next_is_valid(next_url.strip('/')):
-                next_url = None
+                next_url = url_for('index', game_url=game_url)
+            return redirect(next_url)
 
-            return redirect(next_url or url_for('index', game_url=game_url))
         else:
+            flash('Incorrect password or username')
             return redirect(url_for('login', game_url=game_url))
 
     return render_template('login.html', form=form, game_url=game_url)
