@@ -15,7 +15,8 @@ class Users(db.Model):
     _password = db.Column(db.String(128))
     username = db.Column(db.String(64))
     matches = db.relationship('Matches', 
-                              primaryjoin='or_(Users.id==Matches.white_player_id, Users.id==Matches.black_player_id)', 
+                              primaryjoin='or_(Users.id==Matches.white_player_id, Users.id==Matches.black_player_id)',
+                              backref=db.backref('players', lazy='dynamic', uselist=True),
                               lazy='dynamic')
 
     @hybrid_property
