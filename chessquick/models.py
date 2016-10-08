@@ -1,6 +1,7 @@
 import string
 import random
 
+from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from chessquick import app, db, bcrypt
@@ -13,6 +14,9 @@ class Users(db.Model):
     email = db.Column(db.String(120), unique=True)
     _password = db.Column(db.String(128))
     username = db.Column(db.String(64))
+    matches = db.relationship('Matches', 
+                              primaryjoin='or_(Users.id==Matches.white_player_id, Users.id==Matches.black_player_id)', 
+                              lazy='dynamic')
 
     @hybrid_property
     def password(self):
