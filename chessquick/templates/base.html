@@ -34,14 +34,14 @@ nav span a {
 
 <body style="background-color: #FAF8EA;">
 
-<nav style="display:block; border-bottom: solid; border-width: thin; border-color: black; margin-top: 1em; margin-bottom: .25em; padding-bottom: 1em;">
+<nav style="display:block; border-bottom: solid; border-width: thin; border-color: black; margin-top: 1em; margin-bottom: .25em; padding-bottom: 1.15em;">
     <span style="float:left;"><b><a href='/'>chessquick!</a></b></span>
     <span style="float:right;">
 
         {% if current_user.is_authenticated %}
             <span id=bookmark></span>
-            <a href='/settings'>Settings</a> |
-            <a href='/logout'>Logout</a>
+            <a href='/settings'>Games</a> |
+            <a href='/logout' style="color: blue;">Profile</a>
 
         {% else %}
 
@@ -55,7 +55,16 @@ nav span a {
     </span>
 </nav>
 <div id=infomartion style="width: 100%; margin: 0 auto; height: 5em;">
-<div id=messages style="height: 25%;">
+<div id=messages align=center style="height: 25%; margin: 0 auto; width: 100%; color: red;">
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
 </div>
 {% block information %}{% endblock %}
 </div>

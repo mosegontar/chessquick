@@ -1,7 +1,7 @@
 import datetime
 
 from flask import   render_template, url_for, request, jsonify, session, \
-    redirect, g
+    redirect, g, flash
 from flask_login import login_user, logout_user, current_user, login_required
 
 from chessquick import app, db, login_manager
@@ -28,10 +28,16 @@ def bookmark():
 
     match = Matches.get_match_by_url(match_url)
 
+    if not match:
+        flash('{} is not a valid match url'.format(match_url))
+        return redirect(url_for('index'))
+        
     if action == 'bookmark':
 
-        if not match or (match.white_player and match.black_player):
+        if match.white_player and match.black_player:
+            flash('This game is already bookmarked by two users')
             return redirect(url_for('index'))
+
         elif current_player == 'w' and not match.white_player:
             match.white_player = current_user
         elif current_player == 'b' and not match.black_player:
@@ -41,9 +47,7 @@ def bookmark():
 
     elif action == 'unbookmark':
 
-        if not match or (not match.white_player and not match.black_player): 
-            return redirect(url_for('index'))
-        elif current_user == match.white_player:
+        if current_user == match.white_player:
             match.white_player = None
         elif current_user == match.black_player:
             match.black_player = None
@@ -52,13 +56,14 @@ def bookmark():
     else:
         pass
 
+    next_actions = {'bookmark': 'Unbookmark', 'unbookmark': 'Bookmark'}
 
     db.session.add(match)
     db.session.commit()
     white_player_name = match.white_player.email if match.white_player else 'Guest'
     black_player_name = match.black_player.email if match.black_player else 'Guest'
 
-    return jsonify(white_player_name=white_player_name, black_player_name=black_player_name)
+    return jsonify(white_player_name=white_player_name, black_player_name=black_player_name, next_action=next_actions[action])
 
 
 @app.route('/_get_fen')
@@ -86,7 +91,7 @@ def signup():
     return render_template('signup.html', form=form)
 
 def next_is_valid(endpoint):
-    return endpoint in app.viewfunctions
+    return endpoint in app.view_functions
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

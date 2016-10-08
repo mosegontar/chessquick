@@ -14,6 +14,8 @@ class Users(db.Model):
     email = db.Column(db.String(120), unique=True)
     _password = db.Column(db.String(128))
     username = db.Column(db.String(64))
+    
+    # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
     matches = db.relationship('Matches', 
                               primaryjoin='or_(Users.id==Matches.white_player_id, Users.id==Matches.black_player_id)',
                               backref=db.backref('players', lazy='dynamic', uselist=True),
