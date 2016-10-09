@@ -16,9 +16,10 @@
         <td id=blackplayer style="background-color: black;color: white; font-style: italic; fon">(Guest)</td>
     </tr>
 </table>
-    {% if taken_players['w'] %}
-        <script>$('#whiteplayer').text('({{ taken_players["w"][:5]}})');</script>
-    {% endif %}
+    <script>
+    $('#whiteplayer').text('({{ taken_players["w"] }})');
+    $('#blackplayer').text('({{ taken_players["b"] }})');
+    </script>
 </div><br/>
 {% endblock %}
 
@@ -43,8 +44,9 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#bookmark").replaceWith('<span id=bookmark><a id="bookmark" href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
-                 $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
+                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
+                $("#whiteplayer").text('('+data.white_player_name+')');
+                $('#blackpalyer').text('('+data.black_player_name+')');              
          })};        
 
 
@@ -54,8 +56,11 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
+                alert('hi');
+                alert(data.white_player_name, data.black_player_name);
                  $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
-                $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
+                $("#whiteplayer").text('('+data.white_player_name+')');
+                $('#blackpalyer').text('('+data.black_player_name+')');
          })};
 
 
@@ -75,7 +80,7 @@
         {% endif %} 
     </div>
 
-    {% if game_url|length > 1 and not taken_players[current_player] %}
+    {% if game_url|length > 1 and taken_players[current_player] == 'Guest' %}
         <script>
             $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
         </script>

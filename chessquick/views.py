@@ -61,10 +61,12 @@ def bookmark():
 
     db.session.add(match)
     db.session.commit()
-    white_player_name = match.white_player.email if match.white_player else 'Guest'
-    black_player_name = match.black_player.email if match.black_player else 'Guest'
+    white_player_name = match.white_player.username if match.white_player else 'Guest'
+    black_player_name = match.black_player.username if match.black_player else 'Guest'
 
-    return jsonify(white_player_name=white_player_name, black_player_name=black_player_name, next_action=next_actions[action])
+    return jsonify(white_player_name=white_player_name, 
+                   black_player_name=black_player_name, 
+                   next_action=next_actions[action])
 
 
 @app.route('/_get_fen')
@@ -89,7 +91,7 @@ def signup():
         if email_exists:
             flash('A user with the email has already registered')
             return render_template('signup.html', form=form)
-        user = Users(email=form.email.data, password=form.password.data)
+        user = Users(username=form.username.data, email=form.email.data, password=form.password.data, login_method='local')
         db.session.add(user)
         db.session.commit()
         login_user(user)
@@ -111,9 +113,9 @@ def login_with_oauth(provider_name):
 
     if result:
         if result.user:
-            user = Users.query.filter(Users.username == result.user.name).first()
+            user = Users.query.filter(Users.auth_id == result.user.id).first()
             if not user:
-                user = Users(username=result.user.username, login_method='oauth')
+                user = Users(username=result.user.username, auth_id=result.user.id, login_method='oauth')
                 db.session.add(user)
                 db.session.commit()
             login_user(user)
@@ -137,19 +139,20 @@ def login():
 
         user = Users.query.filter_by(email=form.email.data).first() 
 
-        if user and user.is_correct_password(form.password.data):
-            
+        if (user and user.is_correct_password(form.password.data)) and user.login_method == 'local':
+
             login_user(user)
             
             next_url = request.args.get('next')
             if next_url and not next_is_valid(next_url.strip('/')):
-                next_url = url_for('index', game_url=game_url)
-            return redirect(next_url)
+                next_url = None
+
+            return redirect(next_url or url_for('index', game_url=game_url))
 
         else:
             flash('Incorrect password or username')
             return redirect(url_for('login', game_url=game_url))
-
+    print('something sad :(')
     return render_template('login.html', form=form, game_url=game_url)
 
 @app.route('/logout')
@@ -172,21 +175,21 @@ def index(game_url='/'):
     match_url = game_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
 
-    taken_players = {'w': False, 'b': False}
+    taken_players = {'w': 'Guest', 'b': 'Guest'}
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
     else:
-        taken_players['w'] = existing_game.white_player.email if existing_game.white_player else False
-        taken_players['b'] = existing_game.black_player.email if existing_game.black_player else False
+        taken_players['w'] = existing_game.white_player.username if existing_game.white_player else 'Guest'
+        taken_players['b'] = existing_game.black_player.username if existing_game.black_player else 'Guest'
 
         game_rounds = existing_game.rounds.all()
         most_recent_round = game_rounds[-1]
         date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
         current_player = session[match_url] if match_url in session.keys() else ''
-
+    print(taken_players)
     return render_template('index.html', 
                            fen=fen, 
                            current_player=current_player,

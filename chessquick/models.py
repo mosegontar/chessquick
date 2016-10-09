@@ -11,9 +11,10 @@ class Users(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(64), unique=True)
+    username = db.Column(db.String(64))
     _password = db.Column(db.String(128))
     email = db.Column(db.String(120), unique=True)
+    auth_id = db.Column(db.String(64))
     login_method = db.Column(Enum('local', 'oauth', name='login_method'))
 
     # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
