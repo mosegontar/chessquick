@@ -1,7 +1,7 @@
 import string
 import random
 
-from sqlalchemy import or_
+from sqlalchemy import or_, Enum
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from chessquick import app, db, bcrypt
@@ -11,9 +11,10 @@ class Users(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(120), unique=True)
-    _password = db.Column(db.String(128))
     username = db.Column(db.String(64), unique=True)
+    _password = db.Column(db.String(128))
+    email = db.Column(db.String(120), unique=True)
+    login_method = db.Column(Enum('local', 'oauth', name='login_method'))
 
     # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
     matches = db.relationship('Matches', 

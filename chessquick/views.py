@@ -101,14 +101,24 @@ def next_is_valid(endpoint):
 
 @app.route('/login/<provider_name>', methods=['GET', 'POST'])
 def login_with_oauth(provider_name):
+    
+    game_url = request.args.get('game_url')
+    if not game_url: game_url = '/'
+
     response = make_response()
 
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
 
     if result:
         if result.user:
-            result.user.update()
-        return "Success"
+            user = Users.query.filter(Users.username == result.user.name).first()
+            if not user:
+                user = Users(username=result.user.username, login_method='oauth')
+                db.session.add(user)
+                db.session.commit()
+            login_user(user)
+
+        return redirect(url_for('index', game_url=game_url))
     return response
 
 @app.route('/login')
