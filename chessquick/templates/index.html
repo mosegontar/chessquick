@@ -20,11 +20,6 @@
     </tr>
 </table>
 <script>
-var updatePlayerStatus = function (white, black) {
-    document.getElementById('whiteplayer').textContent = white;
-    document.getElementById('blackplayer').textContent = black;
-}
-updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");
 </script>
 </div>
 <br/>
@@ -37,6 +32,12 @@ updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");
         function share()  {
             prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
         };
+        
+        var updatePlayerStatus = function (white, black) {
+            document.getElementById('whiteplayer').textContent = white;
+            document.getElementById('blackplayer').textContent = black;
+        }
+        updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");        
     </script>
 
     <div id="board" style="width: 100%"></div>
@@ -65,8 +66,6 @@ updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");
                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
                 updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
-
-
 
     </script>
 

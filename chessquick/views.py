@@ -40,17 +40,17 @@ def bookmark():
             return redirect(url_for('index'))
 
         elif current_player == 'w' and not match.white_player:
-            match.white_player = current_user
+            match.white_player = g.user
         elif current_player == 'b' and not match.black_player:
-            match.black_player = current_user
+            match.black_player = g.user
         else:
             pass
 
     elif action == 'unbookmark':
 
-        if current_user == match.white_player:
+        if g.user == match.white_player:
             match.white_player = None
-        elif current_user == match.black_player:
+        elif g.user == match.black_player:
             match.black_player = None
         else:
             pass
@@ -101,12 +101,10 @@ def signup():
 def next_is_valid(endpoint):
     return endpoint in app.view_functions
 
-@app.route('/login/<provider_name>', methods=['GET', 'POST'])
-def login_with_oauth(provider_name):
+@app.route('/login/<provider_name>')
+@app.route('/login/<provider_name>/<game_url>')
+def login_with_oauth(provider_name, game_url='/'):
     
-    game_url = request.args.get('game_url')
-    if not game_url: game_url = '/'
-
     response = make_response()
 
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
@@ -152,7 +150,7 @@ def login():
         else:
             flash('Incorrect password or username')
             return redirect(url_for('login', game_url=game_url))
-    print('something sad :(')
+
     return render_template('login.html', form=form, game_url=game_url)
 
 @app.route('/logout')
