@@ -18,7 +18,7 @@ AUTHOMATIC_CONFIG = {
         'twitter': {
 
             'class_': oauth1.Twitter,
-            'consumer_key': 'nothing',
+            'consumer_key': 'nothing much',
             'consumer_secret': 'nothing'
         },
 }
