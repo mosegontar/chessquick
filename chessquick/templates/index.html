@@ -1,67 +1,65 @@
 {% extends 'base.html' %}
 
-<script>
-    function share()  {
-        prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
-    };
-
-
-    var bookmark = function (action) {
-        $.getJSON($SCRIPT_ROOT +'/_bookmark', {
-            action: action,
-            match_url: "{{ game_url }}",
-            current_player: current_player,
-        }, function(data) {
-             
-             if (data.next_action === 'Bookmark') {
-                var next_action_color = "color:#66b266"
-             } 
-             else {
-                var next_action_color = "color:#F24174"
-             }
-
-             $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark("'+data.next_action.toLowerCase()+'"); style='+next_action_color+'>'+data.next_action+'!</a> |</span>');
-            $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
-            $("#blackplayer").text('('+data.black_player_name.slice(0,5)+')');
-     })};    
-</script>
-
 <!-- <span id="status"></span></i>{% if round_date %} Last move:{{ round_date }} {% endif %}-->
 
 {% block information %}
 <div id=playerInfo style="height: 75%;">
-    <table style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
-        <tr>
-            <th></th>
-            <th> Status: </th>
-            <th></th>
-        </tr>
-        <tr>
-            <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">(Guest)</td>
-            <td id=status style="padding: 0 3em 0 3em;">
-            <td id=blackplayer style="background-color: black;color: white; font-style: italic; fon">(Guest)</td>
-        </tr>
-    </table>
+<table style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
+    <tr>
+        <th></th>
+        <th> Status: </th>
+        <th></th>
+    </tr>
+    <tr>
+        <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">(Guest)</td>
+        <td id=status style="padding: 0 3em 0 3em;">
+        <td id=blackplayer style="background-color: black;color: white; font-style: italic; fon">(Guest)</td>
+    </tr>
+</table>
     {% if taken_players['w'] %}
         <script>$('#whiteplayer').text('({{ taken_players["w"][:5]}})');</script>
     {% endif %}
-    {% if taken_players['b'] %}
-        <script>$('#blackplayer').text('({{ taken_players["b"][:5]}})');</script>
-    {% endif %}
-
-</div>
-<br/>
+</div><br/>
 {% endblock %}
 
 
 {% block content %}
 <div style="width: 100%; margin: .25em auto 0 auto; ">
+    <script>
+        function share()  {
+            prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
+        };
+    </script>
 
     <div id="board" style="width: 100%"></div>
     <script>
         var current_player = '{{ current_player }}';
         var current_fen = '{{ fen }}';
         var root_path = '{{ root_path }}';
+
+        var unbookmark = function () {
+            $.getJSON($SCRIPT_ROOT +'/_bookmark', {
+                action: "unbookmark",
+                match_url: "{{ game_url }}",
+                current_player: current_player,
+            }, function(data) {
+                 $("#bookmark").replaceWith('<span id=bookmark><a id="bookmark" href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
+                 $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
+         })};        
+
+
+        var bookmark = function () {
+            $.getJSON($SCRIPT_ROOT +'/_bookmark', {
+                action: "bookmark",
+                match_url: "{{ game_url }}",
+                current_player: current_player,
+            }, function(data) {
+                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
+                $("#whiteplayer").text('('+data.white_player_name.slice(0,5)+')');
+         })};
+
+
+
     </script>
 
     <script src="{{url_for('static', filename='js/game.js') }} "></script>
@@ -79,11 +77,11 @@
 
     {% if game_url|length > 1 and not taken_players[current_player] %}
         <script>
-            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark("bookmark"); style="color:#66b266">Bookmark!</a> |</span>');
+            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
         </script>
     {% elif game_url|length > 1 and taken_players[current_player] %}
         <script>
-            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark("unbookmark"); style="color:#F24174">Un-bookmark!</a> |</span>');
+            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
         </script>    
     {% endif %}  
 
