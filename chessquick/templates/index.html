@@ -4,6 +4,9 @@
 
 {% block information %}
 <div id=playerInfo style="height: 75%;">
+<script>
+
+</script>
 <table style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
     <tr>
         <th></th>
@@ -11,16 +14,20 @@
         <th></th>
     </tr>
     <tr>
-        <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">(Guest)</td>
+        <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">Guest</td>
         <td id=status style="padding: 0 3em 0 3em;">
-        <td id=blackplayer style="background-color: black;color: white; font-style: italic; fon">(Guest)</td>
+        <td id='blackplayer' style="background-color: black;color: white; font-style: italic; fon">Guest</td>
     </tr>
 </table>
-    <script>
-    $('#whiteplayer').text('({{ taken_players["w"] }})');
-    $('#blackplayer').text('({{ taken_players["b"] }})');
-    </script>
-</div><br/>
+<script>
+var updatePlayerStatus = function (white, black) {
+    document.getElementById('whiteplayer').textContent = white;
+    document.getElementById('blackplayer').textContent = black;
+}
+updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");
+</script>
+</div>
+<br/>
 {% endblock %}
 
 
@@ -45,8 +52,7 @@
                 current_player: current_player,
             }, function(data) {
                  $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
-                $("#whiteplayer").text('('+data.white_player_name+')');
-                $('#blackpalyer').text('('+data.black_player_name+')');              
+                updatePlayerStatus(data.white_player_name, data.black_player_name);             
          })};        
 
 
@@ -56,11 +62,8 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                alert('hi');
-                alert(data.white_player_name, data.black_player_name);
-                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
-                $("#whiteplayer").text('('+data.white_player_name+')');
-                $('#blackpalyer').text('('+data.black_player_name+')');
+                $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
+                updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
 
 
