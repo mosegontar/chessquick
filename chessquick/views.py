@@ -22,7 +22,7 @@ def before_request():
 @app.route('/_bookmark')
 @login_required
 def bookmark():
-    
+
     current_player = request.args.get('current_player')
     action = request.args.get('action')
     match_url = request.args.get('match_url')
@@ -38,7 +38,7 @@ def bookmark():
         if match.white_player and match.black_player:
             flash('This game is already bookmarked by two users')
             return redirect(url_for('index'))
-
+            
         elif current_player == 'w' and not match.white_player:
             match.white_player = g.user
         elif current_player == 'b' and not match.black_player:
@@ -62,11 +62,9 @@ def bookmark():
 
     white_player_name = match.white_player.username if match.white_player else 'Guest'
     black_player_name = match.black_player.username if match.black_player else 'Guest'
-    next_actions = {'bookmark': 'Unbookmark', 'unbookmark': 'Bookmark'}
 
     return jsonify(white_player_name=white_player_name, 
-                   black_player_name=black_player_name, 
-                   next_action=next_actions[action])
+                   black_player_name=black_player_name)
 
 @app.route('/history')
 def history():
@@ -82,7 +80,9 @@ def get_fen():
     time_of_turn = datetime.datetime.utcnow()
 
     match_url = Rounds.add_turn_to_game(_match_url, fen, time_of_turn)
-    session[match_url] = current_player
+    current_match = Matches.get_match_by_url(match_url)
+
+    session[match_url] = current_player 
 
     return jsonify(game_url=match_url)
 
@@ -191,11 +191,16 @@ def index(game_url='/'):
     else:
         taken_players['w'] = existing_game.white_player.username if existing_game.white_player else 'Guest'
         taken_players['b'] = existing_game.black_player.username if existing_game.black_player else 'Guest'
+        if g.user == existing_game.white_player:
+            session[match_url] = 'w'
+        elif g.user == existing_game.black_player:
+            session[match_url] = 'b'
 
         game_rounds = existing_game.rounds.all()
         most_recent_round = game_rounds[-1]
         date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
+
         current_player = session[match_url] if match_url in session.keys() else ''
 
     return render_template('index.html', 

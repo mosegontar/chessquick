@@ -40,7 +40,7 @@
 
     <div id="board" style="width: 100%"></div>
     <script>
-        var current_player = '{{ current_player }}';
+        var current_player = '{{ current_player }}'
         var current_fen = '{{ fen }}';
         var root_path = '{{ root_path }}';
 
@@ -80,14 +80,14 @@
         {% endif %} 
     </div>
 
-    {% if game_url|length > 1 and taken_players[current_player] == 'Guest' %}
+    {% if game_url|length > 1 and taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}
         <script>
             $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
         </script>
-    {% elif game_url|length > 1 and taken_players[current_player] %}
+    {% elif game_url|length > 1 and current_user.username in taken_players.values() %}
         <script>
             $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
-        </script>    
+        </script>        
     {% endif %}  
 
 </div>

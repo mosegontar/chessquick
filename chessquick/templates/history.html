@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+
+<table align=center style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
+<tr>
+    <th>Last move played on </th>
+    <th>White</th>
+    <th>Black</th>
+    <th>Moves made</th>
+</tr>
+{% for match, date in current_user.get_recent_matches()[::-1] %}
+<tr>
+    <td><a href='/{{match.match_url}}'>{{ date }}</a></td>
+    <td> {{match.white_player.username if match.white_player.username else 'Guest' }}</td>
+    <td> {{ match.black_player.username if match.black_player.username else 'Guest' }}</td>
+    <td>{{ match.rounds.all()|length }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
