@@ -14,7 +14,6 @@ from chessquick.forms import EmailPasswordForm
 def load_user(id):
     return Users.query.get(int(id))
 
-
 @app.before_request
 def before_request():
     g.user = current_user
@@ -38,7 +37,7 @@ def bookmark():
         if match.white_player and match.black_player:
             flash('This game is already bookmarked by two users')
             return redirect(url_for('index'))
-            
+
         elif current_player == 'w' and not match.white_player:
             match.white_player = g.user
         elif current_player == 'b' and not match.black_player:
@@ -114,9 +113,7 @@ def next_is_valid(endpoint):
 def login_with_oauth(provider_name, game_url='/'):
     
     response = make_response()
-
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
-
     if result:
         if result.user:
             
@@ -127,7 +124,6 @@ def login_with_oauth(provider_name, game_url='/'):
             login_user(user)
 
         return redirect(url_for('index', game_url=game_url))
-
     return response
 
 @app.route('/login')
@@ -145,7 +141,6 @@ def login():
     if form.validate_on_submit():
 
         user = Users.query.filter(Users.email == form.email.data).first() 
-
         if (user and user.is_correct_password(form.password.data)) and user.login_method == 'local':
 
             login_user(user)
@@ -153,7 +148,6 @@ def login():
             next_url = request.args.get('next')
             if next_url and not next_is_valid(next_url.strip('/')):
                 next_url = None
-
             return redirect(next_url or url_for('index', game_url=game_url))
 
         else:
@@ -181,10 +175,12 @@ def index(game_url='/'):
 
     match_url = game_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
+    if not existing_game and len(match_url) > 1:
+        flash("Couldn't locate game at the address {}".format(match_url))
+        match_url = ''
 
     taken_players = {'w': 'Guest', 'b': 'Guest'}
     if not existing_game:
-        match_url = ''
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None

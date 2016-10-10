@@ -9,15 +9,21 @@
     <th>White</th>
     <th>Black</th>
     <th>Moves made</th>
+    <th>Whose move?</th>
 </tr>
 {% for match, date in current_user.get_recent_matches()[::-1] %}
 <tr>
-    <td><a href='/{{match.match_url}}'>{{ date }}</a></td>
-    <td> {{match.white_player.username if match.white_player.username else 'Guest' }}</td>
-    <td> {{ match.black_player.username if match.black_player.username else 'Guest' }}</td>
+    <td><a href='/{{match.match_url}}'>{{ moment(date).calendar() }}</a></td>
+    <td id=matchWhite> {{match.white_player.username if match.white_player.username else 'Guest' }}</td>
+    <td id=matchBlack> {{ match.black_player.username if match.black_player.username else 'Guest' }}</td>
     <td>{{ match.rounds.all()|length }}</td>
-</tr>
+    {% if match.rounds.all()|length % 2 == 0 %}
+        <td>White</td>
+    {% else %}
+        <td>Black</td>
+    {% endif %}
 {% endfor %}
+</tr>
 </table>
 </div>
 {% endblock %}

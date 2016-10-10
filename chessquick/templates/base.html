@@ -10,6 +10,7 @@
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
+    {{ moment.include_moment() }}
 <style>
 
 @media only screen and (min-width:992px) {
