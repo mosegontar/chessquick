@@ -57,17 +57,20 @@ def bookmark():
     else:
         pass
 
-    next_actions = {'bookmark': 'Unbookmark', 'unbookmark': 'Bookmark'}
-
     db.session.add(match)
     db.session.commit()
+
     white_player_name = match.white_player.username if match.white_player else 'Guest'
     black_player_name = match.black_player.username if match.black_player else 'Guest'
+    next_actions = {'bookmark': 'Unbookmark', 'unbookmark': 'Bookmark'}
 
     return jsonify(white_player_name=white_player_name, 
                    black_player_name=black_player_name, 
                    next_action=next_actions[action])
 
+@app.route('/history')
+def history():
+    return render_template('history.html')
 
 @app.route('/_get_fen')
 def get_fen():
@@ -87,15 +90,20 @@ def get_fen():
 def signup():
     form = EmailPasswordForm()
     if form.validate_on_submit():
+
         email_exists = Users.query.filter(Users.email==form.email.data).first()
+
         if email_exists:
             flash('A user with the email has already registered')
             return render_template('signup.html', form=form)
-        user = Users(username=form.username.data, email=form.email.data, password=form.password.data, login_method='local')
-        db.session.add(user)
-        db.session.commit()
+
+        user = Users.add_user(username=form.username.data, 
+                              email=form.email.data, 
+                              password=form.password.data, 
+                              login_method='local')
         login_user(user)
         return redirect(url_for('index'))
+
     return render_template('signup.html', form=form)
 
 def next_is_valid(endpoint):
@@ -111,14 +119,15 @@ def login_with_oauth(provider_name, game_url='/'):
 
     if result:
         if result.user:
-            user = Users.query.filter(Users.auth_id == result.user.id).first()
+            
+            user = Users.query.filter(Users.auth_id == result.user.id).first()            
             if not user:
-                user = Users(username=result.user.username, auth_id=result.user.id, login_method='oauth')
-                db.session.add(user)
-                db.session.commit()
+                user = Users.add_user(username=result.user.username, auth_id=result.user.id, login_method='oauth')
+            
             login_user(user)
 
         return redirect(url_for('index', game_url=game_url))
+
     return response
 
 @app.route('/login')
@@ -135,7 +144,7 @@ def login():
 
     if form.validate_on_submit():
 
-        user = Users.query.filter_by(email=form.email.data).first() 
+        user = Users.query.filter(Users.email == form.email.data).first() 
 
         if (user and user.is_correct_password(form.password.data)) and user.login_method == 'local':
 
@@ -175,6 +184,7 @@ def index(game_url='/'):
 
     taken_players = {'w': 'Guest', 'b': 'Guest'}
     if not existing_game:
+        match_url = ''
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
@@ -187,11 +197,11 @@ def index(game_url='/'):
         date_of_turn = most_recent_round.date_of_turn
         fen = most_recent_round.fen_string
         current_player = session[match_url] if match_url in session.keys() else ''
-    print(taken_players)
+
     return render_template('index.html', 
                            fen=fen, 
                            current_player=current_player,
                            root_path = request.url_root,
-                           game_url=game_url,
+                           game_url=match_url,
                            round_date=date_of_turn,
                            taken_players=taken_players)                          

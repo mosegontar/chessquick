@@ -55,6 +55,23 @@ class Users(db.Model):
         except NameError:
             return str(self.id)  # python 3
     
+    @staticmethod
+    def add_user(**kwargs):
+        user = Users(**kwargs)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+
+    def get_recent_matches(self):
+
+        matches = self.matches.all()
+        recent_matches = sorted([(match, max(r.date_of_turn for r in match.rounds)) \
+                                for match in matches], key=lambda x: x[1])
+
+        return recent_matches
+
+
 
 class Matches(db.Model):
 
