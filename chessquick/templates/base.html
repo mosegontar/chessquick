@@ -6,47 +6,25 @@
     <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
     <script src="{{url_for('static', filename='js/chessboard-0.3.0.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/normalize.css') }}">    
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/chessboard-0.3.0.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/chessquick.css') }}">
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
     {{ moment.include_moment() }}
-<style>
-
-@media only screen and (min-width:992px) {
-    body {
-        margin: 0 auto;
-        width:40%;
-    }
-}
-
-nav {
-    color: black;
-}
-
-nav span a {
-    text-decoration: none;
-    color: black;
-}
-
-nav a:hover {
-    color: red;
-}
-
-
-</style>
 </head>
 
-<body style="background-color: #FAF8EA;">
+<body>
 
-<nav style="display:block; border-bottom: solid; border-width: thin; border-color: black; margin-top: 1em; margin-bottom: .25em; padding-bottom: 1.15em;">
-    <span style="float:left;"><b><a href='/'>chessquick!</a></b></span>
-    <span style="float:right;">
+<nav>
+    <span id='menu page_title'><b><a href='/'>chessquick!</a></b></span>
+    <div class="menu_items">
 
         {% if current_user.is_authenticated %}
-            <span id=bookmark></span>
+            <span id=bookmark_span></span>
             <a href='/history'>Games</a> |
-            <a href='/profile' style="color: blue;">Profile</a>
+            <a id='profile_link' href='/profile'>Profile</a>
 
         {% else %}
 
@@ -57,20 +35,21 @@ nav a:hover {
 
         {% endif %}
 
-    </span>
+    </div>
 </nav>
-<div id=infomartion style="width: 100%; margin: 0 auto; height: 5em;">
-<div id=messages align=center style="height: 25%; margin: 0 auto; width: 100%; color: red;">
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="flashes">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-</div>
+
+<div class=information>
+    <div id=messages align=center>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
 {% block information %}{% endblock %}
 </div>
 

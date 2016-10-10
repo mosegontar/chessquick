@@ -1,0 +1,116 @@
+/* BODY */
+
+body {
+    background-color: #FAF8EA;
+}
+
+@media only screen and (min-width:992px) {
+    body {
+        margin: 0 auto;
+        width:40%;
+    }
+}
+
+/* Nav */
+
+nav {
+    color: black;
+    display: block; 
+    border-bottom: solid; 
+    border-width: thin; 
+    border-color: black; 
+    margin-top: 1em; 
+    margin-bottom: .25em;}
+
+nav a {
+    text-decoration: none;
+    color: black;
+}
+
+nav a:hover {
+    color: red;
+}
+
+#menu.page_title {
+    float: left;
+}
+
+.menu_items {
+    float: right;
+}
+
+a#profile_link {
+    color: blue;
+}
+
+#bookmark_span a#unbookmark {
+    color:#F24174;
+}
+
+#bookmark_span a#bookmark {
+    color:#66b266;
+}
+
+/* Information div */
+div.information {
+    width: 99.3%;
+    height: 5em;
+}
+
+div.information div#messages {
+    height: 25%; 
+    margin: 0 auto; 
+    width: 100%; 
+    color: red;
+}
+
+/* Information: player info div */
+
+div.playerInfo  {
+    height: 75%;
+}
+
+div.playerInfo table {
+    width: 100%; 
+    height: 100%; 
+    text-align: center; 
+    color: black; 
+    vertical-align: middle; 
+    border-collapse: collapse;
+}
+
+div.playerInfo table td#whiteplayer {
+    width: 25%;
+    font-style: italic; 
+    background-color: white;
+    border: 1px solid black;
+}
+
+div.playerInfo table td#status {
+    padding: 0 3em 0 3em;
+}
+
+div.playerInfo table td#blackplayer {
+    width: 25%;
+    background-color: black;
+    color: white; 
+    font-style: italic;
+}
+
+/* Main game */
+div.main_game {
+    margin: .25em auto 0 auto;
+}
+
+div.main_game div#board {
+    width:100%;
+}
+
+div.buttons button {
+    display: none;
+}
+
+div.buttons button#share_button {
+    display:block; 
+    float:right;
+}

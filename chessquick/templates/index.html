@@ -3,29 +3,26 @@
 <!-- <span id="status"></span></i>{% if round_date %} Last move:{{ round_date }} {% endif %}-->
 
 {% block information %}
-<div id=playerInfo style="height: 75%;">
-<script>
-
-</script>
-<table style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
-    <tr>
-        <th></th>
-        <th> Status: </th>
-        <th></th>
-    </tr>
-    <tr>
-        <td id=whiteplayer style="font-style: italic; background-color: white; border: 1px solid black;">Guest</td>
-        <td id=status style="padding: 0 3em 0 3em;">
-        <td id='blackplayer' style="background-color: black;color: white; font-style: italic; fon">Guest</td>
-    </tr>
-</table>
+<div class=playerInfo>
+    <table>
+        <tr>
+            <th></th>
+            <th> Status: </th>
+            <th></th>
+        </tr>
+        <tr>
+            <td id=whiteplayer>Guest</td>
+            <td id=status>
+            <td id='blackplayer'">Guest</td>
+        </tr>
+    </table>
 </div>
 <br/>
 {% endblock %}
 
 
 {% block content %}
-<div style="width: 100%; margin: .25em auto 0 auto; ">
+<div class=main_game>
     <script>
         function share()  {
             prompt("Share your game with this link!", "{{ root_path }}"+"{{ game_url }}");
@@ -38,7 +35,7 @@
         updatePlayerStatus("{{ taken_players['w'] }}", "{{ taken_players['b'] }}");        
     </script>
 
-    <div id="board" style="width: 100%"></div>
+    <div id="board"></div>
     <script>
         var current_player = '{{ current_player }}'
         var current_fen = '{{ fen }}';
@@ -50,7 +47,7 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
+                 $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=bookmark href="#" onclick=bookmark();>Bookmark!</a> |</span>');
                 updatePlayerStatus(data.white_player_name, data.black_player_name);             
          })};        
 
@@ -61,7 +58,7 @@
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
+                $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=unbookmark href="#" onclick=unbookmark();>Un-bookmark!</a> |</span>');
                 updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
 
@@ -72,21 +69,21 @@
     <p></p>
 
     <div class="buttons">
-        <button style="display:none;" id=submit_move>Submit Move</button>
-        <button style="display:none;" id=undo_move>Undo Move</button>
+        <button id=submit_move>Submit Move</button>
+        <button id=undo_move>Undo Move</button>
 
         {% if game_url|length > 1 %}
-            <button style="display:block; float:right;" onClick="share()">Share!</button>
+            <button id=share_button onClick="share()">Share!</button>
         {% endif %} 
     </div>
 
     {% if game_url|length > 1 and taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}
         <script>
-            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=bookmark(); style="color:#66b266">Bookmark!</a> |</span>');
+            $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=bookmark href="#" onclick=bookmark();>Bookmark!</a> |</span>');
         </script>
     {% elif game_url|length > 1 and current_user.username in taken_players.values() %}
         <script>
-            $("#bookmark").replaceWith('<span id=bookmark><a href="#" onclick=unbookmark(); style="color:#F24174">Un-bookmark!</a> |</span>');
+            $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=unbookmark href="#" onclick=unbookmark();>Un-bookmark!</a> |</span>');
         </script>        
     {% endif %}  
 
