@@ -11,7 +11,7 @@ class Users(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(64))
+    _username = db.Column(db.String(64), unique=True)
     _password = db.Column(db.String(128))
     email = db.Column(db.String(120), unique=True)
     auth_id = db.Column(db.String(64))
@@ -32,6 +32,32 @@ class Users(db.Model):
         # encoding/decoding utf-8: 
         # http://stackoverflow.com/questions/34548846/flask-bcrypt-valueerror-invalid-salt
         self._password = bcrypt.generate_password_hash(plaintext.encode('utf-8')).decode('utf-8')
+
+    @hybrid_property 
+    def username(self):
+        return self._username
+
+    @username.setter
+    def _set_username(self, desired_username):
+        self._username = Users.make_unique_username(desired_username)
+
+
+    @staticmethod
+    def make_unique_username(desired_username):
+        print('here')
+        existing_username = Users.query.filter(Users._username == desired_username).first()
+        if not existing_username:
+            return desired_username
+
+        version = 2
+        while True:
+            proposed_username = desired_username + str(version)
+            if Users.query.filter(Users._username == proposed_username).first() is None:
+                break
+            version += 1
+        return proposed_username
+
+
 
     def is_correct_password(self, plaintext):
         return bcrypt.check_password_hash(self._password, plaintext)

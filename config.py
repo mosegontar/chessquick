@@ -19,7 +19,7 @@ AUTHOMATIC_CONFIG = {
 
             'class_': oauth1.Twitter,
             'consumer_key': 'coupons',
-            'consumer_secret': 'buying offbrand ;}'
+            'consumer_secret': 'money helps}'
         },
         'google': {
             'class_': oauth2.Google,

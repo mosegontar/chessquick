@@ -125,7 +125,6 @@ def set_game_url():
 @app.route('/login/<provider_name>')
 def login_with_oauth(provider_name):
 
-
     response = make_response()
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
     if result:
