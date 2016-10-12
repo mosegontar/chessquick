@@ -18,7 +18,13 @@ AUTHOMATIC_CONFIG = {
         'twitter': {
 
             'class_': oauth1.Twitter,
-            'consumer_key': 'nothing much',
-            'consumer_secret': 'nothing'
+            'consumer_key': 'coupons',
+            'consumer_secret': 'buying offbrand ;}'
+        },
+        'google': {
+            'class_': oauth2.Google,
+            'consumer_key': 'https://en.wikipedia.org/wiki/Consumerism',
+            'consumer_secret': 'the secret is you',
+            'scope': 'it out' # https://developers.google.com/identity/protocols/googlescopes
         },
 }

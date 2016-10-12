@@ -65,6 +65,7 @@ def bookmark():
     return jsonify(white_player_name=white_player_name, 
                    black_player_name=black_player_name)
 
+@login_required
 @app.route('/history')
 def history():
     return render_template('history.html')
@@ -105,25 +106,41 @@ def signup():
 
     return render_template('signup.html', form=form)
 
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
+
 def next_is_valid(endpoint):
     return endpoint in app.view_functions
 
+
+def _set_game_url():
+    session['game_url'] = request.args.get('game_url')
+    return jsonify(game_url=game_url)
+
+
 @app.route('/login/<provider_name>')
-@app.route('/login/<provider_name>/<game_url>')
-def login_with_oauth(provider_name, game_url='/'):
-    
+def login_with_oauth(provider_name):
+
+
     response = make_response()
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
     if result:
         if result.user:
-            
+            result.user.update()
+
             user = Users.query.filter(Users.auth_id == result.user.id).first()            
             if not user:
-                user = Users.add_user(username=result.user.username, auth_id=result.user.id, login_method='oauth')
-            
+                user = Users.add_user(username=result.user.username, 
+                                      auth_id=result.user.id, 
+                                      login_method='oauth')
             login_user(user)
 
-        return redirect(url_for('index', game_url=game_url))
+        if 'game_url' not in session.keys():
+            session['game_url'] = '/'
+        return redirect(url_for('index', game_url=session['game_url']))
     return response
 
 @app.route('/login')
@@ -161,11 +178,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-@app.route('/settings')
-@login_required
-def settings():
-    return render_template('settings.html')
 
 @app.route('/')
 @app.route('/<game_url>')
