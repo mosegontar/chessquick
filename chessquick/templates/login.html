@@ -16,7 +16,7 @@
 <br/>
 
 <a id=twitterLogin href='{{url_for("login_with_oauth", provider_name="twitter")}}'>Twitter</a>
-<a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google") }}'>Google</a>
+<a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>Google</a>
 <script>
 $('#googleLogin #twitterLogin').on('click', function () {
         $.getJSON($SCRIPT_ROOT +'/_set_game_url', {

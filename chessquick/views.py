@@ -115,10 +115,11 @@ def profile():
 def next_is_valid(endpoint):
     return endpoint in app.view_functions
 
+@app.route('/_set_game_url')
+def set_game_url():
+    session['game_url'] = request.args.get('match_url')
 
-def _set_game_url():
-    session['game_url'] = request.args.get('game_url')
-    return jsonify(game_url=game_url)
+    return jsonify(game_url=session['game_url'])
 
 
 @app.route('/login/<provider_name>')
@@ -140,6 +141,7 @@ def login_with_oauth(provider_name):
 
         if 'game_url' not in session.keys():
             session['game_url'] = '/'
+
         return redirect(url_for('index', game_url=session['game_url']))
     return response
 
@@ -165,6 +167,7 @@ def login():
             next_url = request.args.get('next')
             if next_url and not next_is_valid(next_url.strip('/')):
                 next_url = None
+
             return redirect(next_url or url_for('index', game_url=game_url))
 
         else:
