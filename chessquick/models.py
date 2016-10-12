@@ -44,7 +44,7 @@ class Users(db.Model):
 
     @staticmethod
     def make_unique_username(desired_username):
-        print('here')
+
         existing_username = Users.query.filter(Users._username == desired_username).first()
         if not existing_username:
             return desired_username

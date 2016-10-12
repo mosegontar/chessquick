@@ -133,6 +133,8 @@ def login_with_oauth(provider_name):
 
             user = Users.query.filter(Users.auth_id == result.user.id).first()            
             if not user:
+                if not result.user.username and result.user.email:
+                    result.user.username = result.user.email.split('@')[0]
                 user = Users.add_user(username=result.user.username, 
                                       auth_id=result.user.id, 
                                       login_method='oauth')
