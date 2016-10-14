@@ -2,6 +2,7 @@
 
 body {
     background-color: #FAF8EA;
+    font-family: 'PT Mono', monospace;
 }
 
 @media only screen and (min-width:992px) {
@@ -64,6 +65,10 @@ div.information div#messages {
     color: red;
 }
 
+div#messages ul {
+    list-style-type: none;
+}
+
 /* Information: player info div */
 
 div.playerInfo  {
@@ -88,6 +93,8 @@ div.playerInfo table td#whiteplayer {
 
 div.playerInfo table td#status {
     padding: 0 3em 0 3em;
+    color: #72AB72;
+    font-weight: bold;
 }
 
 div.playerInfo table td#blackplayer {
@@ -107,10 +114,23 @@ div.main_game div#board {
 }
 
 div.buttons button {
-    display: none;
+    visibility: hidden;
 }
 
 div.buttons button#share_button {
+    visibility:visible;
     display:block; 
     float:right;
 }
+
+/* History */
+table#history_table {
+    width: 100%; 
+    height: 100%; 
+    text-align: center; 
+    color: black; 
+    vertical-align: middle; 
+    border-collapse: separate;
+    border-spacing: 1em;
+}
+

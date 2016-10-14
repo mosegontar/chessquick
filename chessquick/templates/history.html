@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
-
+{% block information %}
+<h4 align=center><span style='color: red;'>{{ current_user.username }}</span> saved games:     </h4>
+{% endblock %}
 {% block content %}
 <div>
 
-<table align=center style="width: 100%; height: 100%; text-align: center; color: black; vertical-align: middle; border-collapse: collapse;">
+<table id=history_table align=center>
 <tr>
-    <th>Last move played on </th>
+    <th>Last move</th>
     <th>White</th>
     <th>Black</th>
-    <th>Moves made</th>
     <th>Whose move?</th>
 </tr>
 {% for match, date in current_user.get_recent_matches()[::-1] %}
@@ -16,7 +17,6 @@
     <td><a href='/{{match.match_url}}'>{{ moment(date).calendar() }}</a></td>
     <td id=matchWhite> {{match.white_player.username if match.white_player.username else 'Guest' }}</td>
     <td id=matchBlack> {{ match.black_player.username if match.black_player.username else 'Guest' }}</td>
-    <td>{{ match.rounds.all()|length }}</td>
     {% if match.rounds.all()|length % 2 == 0 %}
         <td>White</td>
     {% else %}

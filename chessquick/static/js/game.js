@@ -33,9 +33,8 @@ var onDrop = function(source, target) {
   // illegal move
   if (move === null) return 'snapback';
   updateStatus();
-  $("#submit_move").hide();
-  document.getElementById('submit_move').style.display = 'inline';
-  document.getElementById('undo_move').style.display = 'inline';
+  document.getElementById('submit_move').style.visibility = 'visible';
+  document.getElementById('undo_move').style.visibility = 'visible';
 };
 
 // update the board position after the piece snap 
@@ -117,8 +116,8 @@ var undo_move = (function () {
     game.undo();
     board = new_game();
     set_orientation();
-    document.getElementById('submit_move').style.display = 'none';
-    document.getElementById('undo_move').style.display = 'none';    
+    document.getElementById('submit_move').style.visibility = 'hidden';
+    document.getElementById('undo_move').style.visibility = 'hidden';    
     updateStatus();
 })
 
