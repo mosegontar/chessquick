@@ -41,24 +41,24 @@
         var current_fen = '{{ fen }}';
         var root_path = '{{ root_path }}';
 
-        var unbookmark = function () {
-            $.getJSON($SCRIPT_ROOT +'/_bookmark', {
-                action: "unbookmark",
+        var unsave = function () {
+            $.getJSON($SCRIPT_ROOT +'/_save', {
+                action: "unsave",
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=bookmark href="#" onclick=bookmark();>Bookmark!</a> |</span>');
+                 $("#save_span").replaceWith('<span id=save_span><a id=save href="#" onclick=save();>Save!</a> |</span>');
                 updatePlayerStatus(data.white_player_name, data.black_player_name);             
          })};        
 
 
-        var bookmark = function () {
-            $.getJSON($SCRIPT_ROOT +'/_bookmark', {
-                action: "bookmark",
+        var save = function () {
+            $.getJSON($SCRIPT_ROOT +'/_save', {
+                action: "save",
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=unbookmark href="#" onclick=unbookmark();>Un-bookmark!</a> |</span>');
+                $("#save_span").replaceWith('<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>');
                 updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
 
@@ -79,11 +79,11 @@
 
     {% if game_url|length > 1 and taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}
         <script>
-            $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=bookmark href="#" onclick=bookmark();>Bookmark!</a> |</span>');
+            $("#save_span").replaceWith('<span id=save_span><a id=save href="#" onclick=save();>Save!</a> |</span>');
         </script>
     {% elif game_url|length > 1 and current_user.username in taken_players.values() %}
         <script>
-            $("#bookmark_span").replaceWith('<span id=bookmark_span><a id=unbookmark href="#" onclick=unbookmark();>Un-bookmark!</a> |</span>');
+            $("#save_span").replaceWith('<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>');
         </script>        
     {% endif %}  
 

@@ -23,9 +23,9 @@
     <div class="menu_items">
 
         {% if current_user.is_authenticated %}
-            <span id=bookmark_span></span>
+            <span id=save_span></span>
             <a href='/history'>Games</a> |
-            <a id='profile_link' href='/profile'>Profile</a>
+            <a id='profile_link' href='/logout'>Profile</a>
 
         {% else %}
 

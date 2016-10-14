@@ -18,9 +18,9 @@ def load_user(id):
 def before_request():
     g.user = current_user
 
-@app.route('/_bookmark')
+@app.route('/_save')
 @login_required
-def bookmark():
+def save():
 
     current_player = request.args.get('current_player')
     action = request.args.get('action')
@@ -32,10 +32,10 @@ def bookmark():
         flash('{} is not a valid match url'.format(match_url))
         return redirect(url_for('index'))
         
-    if action == 'bookmark':
+    if action == 'save':
 
         if match.white_player and match.black_player:
-            flash('This game is already bookmarked by two users')
+            flash('This game is already saveed by two users')
             return redirect(url_for('index'))
 
         elif current_player == 'w' and not match.white_player:
@@ -45,7 +45,7 @@ def bookmark():
         else:
             pass
 
-    elif action == 'unbookmark':
+    elif action == 'unsave':
 
         if g.user == match.white_player:
             match.white_player = None
@@ -107,7 +107,7 @@ def signup():
     if form.errors:
         for field, error in form.errors.items():
             flash(error[0])
-            
+
     return render_template('signup.html', form=form)
 
 @app.route('/profile')
@@ -122,7 +122,7 @@ def next_is_valid(endpoint):
 @app.route('/_set_game_url')
 def set_game_url():
     session['game_url'] = request.args.get('match_url')
-
+    print(session['game_url'], 'is set')
     return jsonify(game_url=session['game_url'])
 
 
@@ -149,6 +149,7 @@ def login_with_oauth(provider_name):
         if 'game_url' not in session.keys():
             session['game_url'] = '/'
 
+        print(session['game_url'])
         return redirect(url_for('index', game_url=session['game_url']))
     return response
 

@@ -44,11 +44,11 @@ a#profile_link {
     color: blue;
 }
 
-#bookmark_span a#unbookmark {
+#save_span a#unsave {
     color:#F24174;
 }
 
-#bookmark_span a#bookmark {
+#save_span a#save {
     color:#66b266;
 }
 

@@ -18,13 +18,16 @@
 <a id=twitterLogin href='{{url_for("login_with_oauth", provider_name="twitter")}}'>Twitter</a>
 <a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>Google</a>
 <script>
-$('#googleLogin #twitterLogin').on('click', function () {
+
+    var set_game_url = function () {
         $.getJSON($SCRIPT_ROOT +'/_set_game_url', {
-        match_url: '{{ game_url }}',
-    }, function() {
-        console.log('game url set');
- })
-});
+            match_url: "{{ game_url }}",
+        }, function(data) {
+             console.log('game url set');          
+     })};        
+
+    $('#googleLogin, #twitterLogin').on('click', set_game_url());
+
 </script>
 
 
