@@ -7,7 +7,7 @@ from authomatic.adapters import WerkzeugAdapter
 
 from chessquick import app, db, login_manager, authomatic
 from chessquick.models import Rounds, Users, Matches
-from chessquick.forms import EmailPasswordForm
+from chessquick.forms import SignUpForm 
 
 
 @login_manager.user_loader
@@ -88,7 +88,7 @@ def get_fen():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = EmailPasswordForm()
+    form = SignUpForm()
     if form.validate_on_submit():
 
         email_exists = Users.query.filter(Users.email==form.email.data).first()
@@ -104,6 +104,10 @@ def signup():
         login_user(user)
         return redirect(url_for('index'))
 
+    if form.errors:
+        for field, error in form.errors.items():
+            flash(error[0])
+            
     return render_template('signup.html', form=form)
 
 @app.route('/profile')
@@ -133,8 +137,10 @@ def login_with_oauth(provider_name):
 
             user = Users.query.filter(Users.auth_id == result.user.id).first()            
             if not user:
+                
                 if not result.user.username and result.user.email:
                     result.user.username = result.user.email.split('@')[0]
+
                 user = Users.add_user(username=result.user.username, 
                                       auth_id=result.user.id, 
                                       login_method='oauth')
@@ -156,7 +162,7 @@ def login():
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index', game_url=game_url))
 
-    form = EmailPasswordForm()
+    form = SignUpForm()
 
     if form.validate_on_submit():
 
