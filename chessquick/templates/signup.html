@@ -3,12 +3,9 @@
 {% block content %}
 <h3>Sign up.</h3>
 <form action="{{ url_for('signup')}}" method="post">
-    {{ form.username.label }}: {{ form.username(placeholder="What should we call you?")}}
-    <br>
-    {{ form.email.label }}: {{ form.email(placeholder="electonic mail address")}}
-    <br>
-    {{ form.password.label }}: {{ form.password }}
-    <br>
+    <p>{{ form.username.label }}: {{ form.username(placeholder="What should we call you?")}}</p>
+    <p>{{ form.email.label }}: {{ form.email(placeholder="electonic mail address")}}</p>
+    <p>{{ form.password.label }}: {{ form.password }}</p>
     {{ form.csrf_token }}
     <input type="submit" name="submit"/>
 </form>

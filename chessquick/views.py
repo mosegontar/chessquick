@@ -7,7 +7,7 @@ from authomatic.adapters import WerkzeugAdapter
 
 from chessquick import app, db, login_manager, authomatic
 from chessquick.models import Rounds, Users, Matches
-from chessquick.forms import SignUpForm 
+from chessquick.forms import UserPassEmailForm 
 
 
 @login_manager.user_loader
@@ -88,7 +88,7 @@ def get_fen():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = SignUpForm()
+    form = UserPassEmailForm()
     if form.validate_on_submit():
 
         email_exists = Users.query.filter(Users.email==form.email.data).first()
@@ -100,7 +100,7 @@ def signup():
         user = Users.add_user(username=form.username.data, 
                               email=form.email.data, 
                               password=form.password.data, 
-                              login_method='local')
+                              login_type='local')
         login_user(user)
         return redirect(url_for('index'))
 
@@ -110,10 +110,20 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('profile.html')
+    form = UserPassEmailForm()
+    del form.password
+    del form.email
+    if form.validate_on_submit():
+        g.user.username = form.username.data
+        db.session.add(g.user)
+        db.session.commit()
+    if form.errors:
+        for field, error in form.errors.items():
+            flash(error[0])    
+    return render_template('profile.html', form=form)
 
 
 def next_is_valid(endpoint):
@@ -122,7 +132,6 @@ def next_is_valid(endpoint):
 @app.route('/_set_game_url')
 def set_game_url():
     session['game_url'] = request.args.get('match_url')
-    print(session['game_url'], 'is set')
     return jsonify(game_url=session['game_url'])
 
 
@@ -135,21 +144,22 @@ def login_with_oauth(provider_name):
         if result.user:
             result.user.update()
 
-            user = Users.query.filter(Users.auth_id == result.user.id).first()            
+            user = Users.query.filter(Users.email == result.user.email).first() 
+         
             if not user:
                 
                 if not result.user.username and result.user.email:
                     result.user.username = result.user.email.split('@')[0]
 
                 user = Users.add_user(username=result.user.username, 
-                                      auth_id=result.user.id, 
-                                      login_method='oauth')
+                                      auth_id=result.user.id,
+                                      email=result.user.email, 
+                                      login_type='google')
             login_user(user)
 
         if 'game_url' not in session.keys():
             session['game_url'] = '/'
 
-        print(session['game_url'])
         return redirect(url_for('index', game_url=session['game_url']))
     return response
 
@@ -163,12 +173,13 @@ def login():
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index', game_url=game_url))
 
-    form = SignUpForm()
+    form = UserPassEmailForm()
+    del form.username
 
     if form.validate_on_submit():
 
         user = Users.query.filter(Users.email == form.email.data).first() 
-        if (user and user.is_correct_password(form.password.data)) and user.login_method == 'local':
+        if (user and user.is_correct_password(form.password.data)) and user.login_type == 'local':
 
             login_user(user)
             

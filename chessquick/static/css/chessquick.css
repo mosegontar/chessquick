@@ -5,11 +5,19 @@ body {
     font-family: 'PT Mono', monospace;
 }
 
-@media only screen and (min-width:992px) {
+@media only screen and (min-width:1000px) {
     body {
         margin: 0 auto;
-        width:40%;
+        width: 40%;
     }
+
+}
+
+@media only screen and (max-width:400px) {
+    div.information {
+        margin-bottom: 3em;
+    }
+
 }
 
 /* Nav */
@@ -32,7 +40,7 @@ nav a:hover {
     color: red;
 }
 
-#menu.page_title {
+nav span#menu.page_title {
     float: left;
 }
 

@@ -2,4 +2,15 @@
 
 {% block content %}
 <h3>Profile. </h3>
+<h4>Change your username:</h4>
+<form action="{{ url_for('profile')}}" method="post">
+    {% set username = current_user.username %}
+    <p>{{ form.username.label }}: {{ form.username(placeholder=username) }}</p>
+    {{ form.csrf_token }}
+    <input type="submit" name="save_change" value="Save Changes"/>
+</form>
+<br/>
+<form action="/logout">
+    <input style="width: 100%;" type="submit" value="Logout" />
+</form>
 {% endblock %}

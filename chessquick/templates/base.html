@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=.97"/>
     <title>Chessquick!</title>
     <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
@@ -25,8 +25,7 @@
         {% if current_user.is_authenticated %}
             <span id=save_span></span>
             <a href='/history'>Games</a> |
-            <a id='profile_link' href='/logout'>Profile</a>
-
+            <a id='profile_link' href='/profile'>{{ current_user.username }}</a>
         {% else %}
 
             <a id=loginLink href=/login>Login</a> 

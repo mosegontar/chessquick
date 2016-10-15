@@ -15,7 +15,7 @@ class Unique(object):
             raise ValidationError(self.message)
 
 
-class SignUpForm(FlaskForm):
+class UserPassEmailForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(),
         Unique(
             Users,
