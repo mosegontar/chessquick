@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
-
+{% block information %}
+<h4 class=saved_games align=center><span>{{ current_user.username }}</span> profile:     </h4>
+{% endblock %}
 {% block content %}
-<h3>Profile. </h3>
-<h4>Change your username:</h4>
-<form action="{{ url_for('profile')}}" method="post">
-    {% set username = current_user.username %}
-    <p>{{ form.username.label }}: {{ form.username(placeholder=username) }}</p>
-    {{ form.csrf_token }}
-    <input type="submit" name="save_change" value="Save Changes"/>
-</form>
-<br/>
-<form action="/logout">
-    <input style="width: 100%;" type="submit" value="Logout" />
-</form>
+<div class=profile>
+    <form id=profile_form action="{{ url_for('profile')}}" method="post">
+        {% set username = current_user.username %}
+        <p>Change username: </p>
+        <span id=change_username>{{ form.username(placeholder=username) }}<input id=save_changes type="submit" name="save_change" value="Save Changes"/></span>
+        {{ form.csrf_token }}
+    </form>
+    <br/>
+    <form action="/logout">
+        <input id=logout_button style="width: 100%;" type="submit" value="Logout" />
+    </form>
+</div>
 {% endblock %}

@@ -70,7 +70,7 @@ a#profile_link {
 }
 
 #save_span a#unsave {
-    color:#F24174;
+    color:#A81A28;
 }
 
 #save_span a#save {
@@ -138,7 +138,7 @@ div.main_game div#board {
     width:100%;
 }
 
-div.buttons button {
+button {
     visibility: hidden;
     outline: none;
     border: none;
@@ -161,6 +161,28 @@ div.buttons button#share_button {
     display:block; 
     float:right;
     background: #6666FF;
+}
+
+/* Profile */
+
+h4.saved_games span {
+    color: #A81A28;
+}
+
+div.profile input#save_changes, input#logout_button {
+    outline: none;
+    border: none;
+    color: white;
+    font-family: 'PT Mono';
+}
+
+div.profile input#logout_button {
+    background-color: #A81A28;
+}
+
+div.profile input#save_changes {
+    margin-left: 1em;
+    background-color: #66b266;
 }
 
 /* History */
