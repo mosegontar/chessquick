@@ -4,15 +4,24 @@
 {% endblock %}
 {% block content %}
 <div class=profile>
-    <form id=profile_form action="{{ url_for('profile')}}" method="post">
-        {% set username = current_user.username %}
-        <p>Change username: </p>
-        <span id=change_username>{{ form.username(placeholder=username) }}<input id=save_changes type="submit" name="save_change" value="Save Changes"/></span>
-        {{ form.csrf_token }}
-    </form>
-    <br/>
+    {% if current_user.email_confirmed %}
+        <form id=profile_form action="{{ url_for('profile')}}" method="post">
+            {% set username = current_user.username %}
+            <p>Change username: </p>
+            <span id=change_username>{{ form.username(placeholder=username) }}<input id=save_changes type="submit" name="save_change" value="Save Changes"/></span>
+            {{ form.csrf_token }}
+        </form>
+        <br/>
+    {% else %}
+        <p> You need to activate your email to change your profile and get notifications </p>
+        <form action="{{ url_for('profile', confirm_email_request=True) }}">
+            <input id=send_activation type="Submit" value="Resend activation">
+        </form>
+        <br/>
+    {% endif %}
     <form action="/logout">
         <input id=logout_button style="width: 100%;" type="submit" value="Logout" />
     </form>
+
 </div>
 {% endblock %}

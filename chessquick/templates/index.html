@@ -6,9 +6,9 @@
 <div class=playerInfo>
     <table>
         <tr>
-            <th></th>
+            <span id=table_head_white><th style='font-family: monospace;'></th></span>
             <th> Status: </th>
-            <th></th>
+            <th id=table_head_black></th>
         </tr>
         <tr>
             <td id=whiteplayer>Guest</td>
@@ -62,6 +62,23 @@
                 updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
 
+        var unnotify = function () {
+            $.getJSON($SCRIPT_ROOT +'/_notify', {
+                action: "unnotify",
+                match_url: "{{ game_url }}",
+            }, function(data) {
+                 $("#notify_span").replaceWith('<span id=notify_span><a id=notify href="#" onclick=notify();>Notify: Off</a> |</span>');
+         })};        
+
+
+        var notify = function () {
+            $.getJSON($SCRIPT_ROOT +'/_notify', {
+                action: "notify",
+                match_url: "{{ game_url }}",
+            }, function(data) {
+                $("#notify_span").replaceWith('<span id=notify_span><a id=unnotify href="#" onclick=unnotify();>Notify: On</a> |</span>');
+         })};            
+
     </script>
 
     <script src="{{url_for('static', filename='js/game.js') }} "></script>
@@ -85,7 +102,22 @@
         <script>
             $("#save_span").replaceWith('<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>');
         </script>        
-    {% endif %}  
+    {% endif %}
+    {% if current_user.username in taken_players.values() %}
+        {% if not current_match.white_notify o %}
+            <script>
+                 $("#notify_span").replaceWith('<span id=notify_span><a id=notify href="#" onclick=notify();>Notify: Off</a> |</span>');
+            </script>
+        {% else %}
+            <script>
+                $("#notify_span").replaceWith('<span id=notify_span><a id=unnotify href="#" onclick=unnotify();>Notify: On</a> |</span>');
+            </script>
+        {% endif %} 
+
+    {% endif %}
+
+
+
 
 </div>
 {% endblock %}

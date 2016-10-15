@@ -1,14 +1,14 @@
 import datetime
 
 from flask import   render_template, url_for, request, jsonify, session, \
-    redirect, g, flash, make_response
+    redirect, g, flash, make_response, abort
 from flask_login import login_user, logout_user, current_user, login_required
 from authomatic.adapters import WerkzeugAdapter
 
 from chessquick import app, db, login_manager, authomatic
 from chessquick.models import Rounds, Users, Matches
 from chessquick.forms import UserPassEmailForm 
-
+from .utils import security, emails
 
 @login_manager.user_loader
 def load_user(id):
@@ -65,6 +65,33 @@ def save():
     return jsonify(white_player_name=white_player_name, 
                    black_player_name=black_player_name)
 
+@app.route('/_notify')
+@login_required
+def notify():
+    action = request.args.get('action')
+    match_url = request.args.get('match_url')
+
+    match = Matches.get_match_by_url(match_url)
+
+    if action == 'notify':
+        if g.user == match.white_player:
+            match.white_notify = True
+        if g.user == match.black_player:
+            match.black_notify = True
+    elif action == 'unnotify':
+        if g.user == match.white_player:
+            match.white_notify == False
+        if g.user == match.black_player:
+            match.black_notify == False
+    else:
+        pass
+
+    db.session.add(match)
+    db.session.commit()
+
+    return jsonify(notify='toggled')
+
+
 @login_required
 @app.route('/history')
 def history():
@@ -86,6 +113,23 @@ def get_fen():
 
     return jsonify(game_url=match_url)
 
+@app.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        email = security.ts.loads(token, salt="email-confirm-key", max_age=86400)
+    except:
+        abort(404)
+
+    user = Users.query.filter_by(email=email).first_or_404()
+
+    user.email_confirmed = True
+
+    db.session.add(user)
+    db.session.commit()
+
+    flash('Email confirmed :)')
+    return redirect(url_for('login'))
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = UserPassEmailForm()
@@ -101,6 +145,11 @@ def signup():
                               email=form.email.data, 
                               password=form.password.data, 
                               login_type='local')
+
+        token = security.ts.dumps(user.email, salt='email-confirm-key')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        emails.verify_email(user.email, confirm_url)
+
         login_user(user)
         return redirect(url_for('index'))
 
@@ -110,9 +159,11 @@ def signup():
 
     return render_template('signup.html', form=form)
 
+@app.route('/profile/<confirm_email_request>', methods=['GET', 'POST'])
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
-def profile():
+def profile(confirm_email_request = False):
+
     form = UserPassEmailForm()
     del form.password
     del form.email
@@ -120,9 +171,17 @@ def profile():
         g.user.username = form.username.data
         db.session.add(g.user)
         db.session.commit()
+
     if form.errors:
         for field, error in form.errors.items():
-            flash(error[0])    
+            flash(error[0])
+    print(confirm_email_request)
+
+    if confirm_email_request:
+        token = security.ts.dumps(g.user.email, salt='email-confirm-key')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        emails.verify_email(g.user.email, confirm_url)
+   
     return render_template('profile.html', form=form)
 
 
@@ -153,7 +212,8 @@ def login_with_oauth(provider_name):
 
                 user = Users.add_user(username=result.user.username, 
                                       auth_id=result.user.id,
-                                      email=result.user.email, 
+                                      email=result.user.email,
+                                      email_confirmed = True, 
                                       login_type='google')
             login_user(user)
 
@@ -194,6 +254,8 @@ def login():
             return redirect(url_for('login', game_url=game_url))
 
     return render_template('login.html', form=form, game_url=game_url)
+
+
 
 @app.route('/logout')
 @login_required
@@ -239,4 +301,5 @@ def index(game_url='/'):
                            root_path = request.url_root,
                            game_url=match_url,
                            round_date=date_of_turn,
-                           taken_players=taken_players)                          
+                           taken_players=taken_players,
+                           current_match=existing_game)                          

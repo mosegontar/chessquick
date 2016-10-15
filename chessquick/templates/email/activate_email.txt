@@ -1,0 +1,5 @@
+Chessquick.
+
+Please confirm your email address:
+
+{{ confirm_url }}

@@ -14,6 +14,7 @@ class Users(db.Model):
     username = db.Column(db.String(64), unique=True)
     _password = db.Column(db.String(128))
     email = db.Column(db.String(120), unique=True)
+    email_confirmed = db.Column(db.Boolean, default=False)
     auth_id = db.Column(db.String(64))
     login_type = db.Column(db.String(12))
     # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
@@ -83,6 +84,8 @@ class Matches(db.Model):
     black_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     _white_player = db.relationship('Users', foreign_keys=[white_player_id])
     _black_player = db.relationship('Users', foreign_keys=[black_player_id])
+    white_notify = db.Column(db.Boolean, default=False)
+    black_notify = db.Column(db.Boolean, default=False)
     rounds = db.relationship('Rounds', backref='match', lazy='dynamic')
 
     @staticmethod

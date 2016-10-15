@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_moment import Moment
+from flask_mail import Mail
 from authomatic import Authomatic
 
 app = Flask(__name__, instance_relative_config=True)
@@ -20,5 +21,7 @@ login_manager.login_view = 'login'
 authomatic = Authomatic(app.config['AUTHOMATIC_CONFIG'], app.config['AUTHOMATIC_SECRET'])
 
 moment = Moment(app)
+
+mail = Mail(app)
 
 from chessquick import views, models
