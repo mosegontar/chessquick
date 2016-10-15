@@ -72,6 +72,27 @@ class Users(db.Model):
 
         return recent_matches
 
+    def is_color(self, match):
+        matches = self.matches.all()
+        if match in matches:
+            if match.white_player == self:
+                return 'w'
+            else:
+                return 'b'
+        else:
+            return False
+
+    def save_match(self, current_player, match):
+        if current_player == 'w':
+            match.white_player = self
+        else:
+            match.black_player = self
+        db.session.add(match)
+        db.session.commit()
+
+
+
+
 
 
 class Matches(db.Model):

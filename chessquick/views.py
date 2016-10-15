@@ -18,9 +18,45 @@ def load_user(id):
 def before_request():
     g.user = current_user
 
+
+def save_game(current_player, match):
+
+    game_closed = bool(match.white_player and match.black_player)
+    if not game_closed and (current_player != g.user.is_color(match) and not g.user.is_color(match)):
+        g.user.save_match(current_player, match)
+
+    return match
+
+def unsave_game(current_player, match):
+
+    if g.user.is_color(match) == 'w':
+        match.white_player = None
+    if g.user.is_color(match) == 'b':
+        match.black_player = None
+
+    return match
+
+def notify(match):
+
+    if g.user.is_color(match) == 'w':
+        match.white_notify = True
+    if g.user.is_color(match) == 'b':
+        match.black_notify = True
+
+    return True
+
+def unnotify(match):
+
+    if g.user.is_color(match) == 'w':
+        match.white_notify = False
+    if g.user.is_color(match) == 'b':
+        match.black_notify = False
+
+    return False
+
 @app.route('/_save')
 @login_required
-def save():
+def toggle_options():
 
     current_player = request.args.get('current_player')
     action = request.args.get('action')
@@ -30,31 +66,14 @@ def save():
 
     if not match:
         flash('{} is not a valid match url'.format(match_url))
-        return redirect(url_for('index'))
-        
-    if action == 'save':
+        return redirect(url_for('index'))    
 
-        if match.white_player and match.black_player:
-            flash('This game is already saveed by two users')
-            return redirect(url_for('index'))
+    action_dict = {'save': save_game,
+                   'unsave': unsave_game,
+                   'notify': None,
+                   'unnotify': None}
 
-        elif current_player == 'w' and not match.white_player:
-            match.white_player = g.user
-        elif current_player == 'b' and not match.black_player:
-            match.black_player = g.user
-        else:
-            pass
-
-    elif action == 'unsave':
-
-        if g.user == match.white_player:
-            match.white_player = None
-        elif g.user == match.black_player:
-            match.black_player = None
-        else:
-            pass
-    else:
-        pass
+    match = action_dict[action](current_player, match)
 
     db.session.add(match)
     db.session.commit()
@@ -62,35 +81,16 @@ def save():
     white_player_name = match.white_player.username if match.white_player else 'Guest'
     black_player_name = match.black_player.username if match.black_player else 'Guest'
 
-    return jsonify(white_player_name=white_player_name, 
-                   black_player_name=black_player_name)
-
-@app.route('/_notify')
-@login_required
-def notify():
-    action = request.args.get('action')
-    match_url = request.args.get('match_url')
-
-    match = Matches.get_match_by_url(match_url)
-
-    if action == 'notify':
-        if g.user == match.white_player:
-            match.white_notify = True
-        if g.user == match.black_player:
-            match.black_notify = True
-    elif action == 'unnotify':
-        if g.user == match.white_player:
-            match.white_notify == False
-        if g.user == match.black_player:
-            match.black_notify == False
+    if match.white_notify and g.user.is_color(match) == 'w':
+        notify_on = True
+    elif match.black_notify and g.user.is_color(match) == 'b':
+        notify_on = True
     else:
-        pass
+        notify_on = False
 
-    db.session.add(match)
-    db.session.commit()
-
-    return jsonify(notify='toggled')
-
+    return jsonify(white_player_name=white_player_name, 
+                   black_player_name=black_player_name,
+                   notify_on=notify_on)
 
 @login_required
 @app.route('/history')
