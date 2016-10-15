@@ -13,11 +13,11 @@ body {
 
 }
 
-@media only screen and (max-width:400px) {
+@media only screen and (max-width:450px) {
     div.information {
         margin-bottom: 3em;
     }
-    div.navigation {
+    div.navigation, div.information {
         margin-bottom: 1em;
         font-size: 60%;
     }
@@ -27,6 +27,9 @@ body {
     .saved_games {
         display: block;
         font-size: 75%;
+    }
+    div.buttons button {
+        width: 20%;
     }
 }
 
@@ -63,7 +66,7 @@ nav a:hover {
 }
 
 a#profile_link {
-    color: blue;
+    color: #6666FF;
 }
 
 #save_span a#unsave {
@@ -137,12 +140,27 @@ div.main_game div#board {
 
 div.buttons button {
     visibility: hidden;
+    outline: none;
+    border: none;
+    color: white;
+    font-family: 'PT Mono';
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+}
+
+div.buttons button#undo_move {
+    background-color: #A81A28;
+}
+
+div.buttons button#submit_move {
+    background-color: #66b266;
 }
 
 div.buttons button#share_button {
     visibility:visible;
     display:block; 
     float:right;
+    background: #6666FF;
 }
 
 /* History */
