@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=.97"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Chessquick!</title>
     <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
@@ -17,26 +17,27 @@
 </head>
 
 <body>
+<div class=navigation>
+    <nav>
+        <span id='menu_page_title'><b><a href='/'>chessquick!</a></b></span>
+        <div class="menu_items">
 
-<nav>
-    <span id='menu page_title'><b><a href='/'>chessquick!</a></b></span>
-    <div class="menu_items">
+            {% if current_user.is_authenticated %}
+                <span id=save_span></span>
+                <a href='/history'>Games</a> |
+                <a id='profile_link' href='/profile'>{{ current_user.username }}</a>
+            {% else %}
 
-        {% if current_user.is_authenticated %}
-            <span id=save_span></span>
-            <a href='/history'>Games</a> |
-            <a id='profile_link' href='/profile'>{{ current_user.username }}</a>
-        {% else %}
+                <a id=loginLink href=/login>Login</a> 
+                {% if game_url|length > 1 %}       
+                    <script>$("#loginLink").attr('href', '/login?game_url={{ game_url }}')</script>
+                {% endif %}
 
-            <a id=loginLink href=/login>Login</a> 
-            {% if game_url|length > 1 %}       
-                <script>$("#loginLink").attr('href', '/login?game_url={{ game_url }}')</script>
             {% endif %}
 
-        {% endif %}
-
-    </div>
-</nav>
+        </div>
+    </nav>
+</div>
 
 <div class=information>
     <div id=messages align=center>

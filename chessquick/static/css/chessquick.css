@@ -5,10 +5,10 @@ body {
     font-family: 'PT Mono', monospace;
 }
 
-@media only screen and (min-width:1000px) {
+@media only screen and (min-width:1200px) {
     body {
         margin: 0 auto;
-        width: 40%;
+        max-width: 40%;
     }
 
 }
@@ -17,19 +17,36 @@ body {
     div.information {
         margin-bottom: 3em;
     }
-
+    div.navigation {
+        margin-bottom: 1em;
+        font-size: 60%;
+    }
+    nav span#menu_page_title a {
+        text-align: center;
+    }
+    .saved_games {
+        display: block;
+        font-size: 75%;
+    }
 }
 
 /* Nav */
 
-nav {
-    color: black;
-    display: block; 
+div.navigation {
+    width: 100%;
+    margin-top: .5em;
     border-bottom: solid; 
     border-width: thin; 
-    border-color: black; 
+    border-color: black;
+    padding-bottom: .125em;     
+}
+
+nav {
+    color: black;
+    display: inline; 
     margin-top: 1em; 
-    margin-bottom: .25em;}
+    margin-bottom: .25em;
+}
 
 nav a {
     text-decoration: none;
@@ -40,9 +57,6 @@ nav a:hover {
     color: red;
 }
 
-nav span#menu.page_title {
-    float: left;
-}
 
 .menu_items {
     float: right;
