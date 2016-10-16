@@ -18,42 +18,47 @@ def load_user(id):
 def before_request():
     g.user = current_user
 
+class OptionToggler(object):
 
-def save_game(current_player, match):
+    def __init__(self, user, current_player, match):
+        self.user = user
+        self.current_player = current_player
+        self.match = match
 
-    game_closed = (match.white_player and match.black_player)
-    if not game_closed and (current_player != g.user.is_color(match) and not g.user.is_color(match)):
-        g.user.save_match(current_player, match)
+    def save_game(self):
 
-    return match
+        game_closed = (self.match.white_player and self.match.black_player)
+        if not game_closed and (self.current_player != self.user.is_color(self.match) and not self.user.is_color(self.match)):
+            self.user.save_match(self.current_player, self.match)
 
-def unsave_game(current_player, match):
+    def unsave_game(self):
 
-    if g.user.is_color(match) == 'w':
-        match.white_player = None
-    if g.user.is_color(match) == 'b':
-        match.black_player = None
+        self.unnotify()
 
-    match = unnotify(current_player, match)
-    return match
+        if self.user.is_color(self.match) == 'w':
+            self.match.white_player = None
+        if self.user.is_color(self.match) == 'b':
+            self.match.black_player = None
 
-def notify(current_player, match):
-    print('notifying')
-    if g.user.is_color(match) == 'w':
-        match.white_notify = True
-    if g.user.is_color(match) == 'b':
-        match.black_notify = True
-   
-    return match
 
-def unnotify(current_player, match):
-    print(g.user.username)
-    if g.user.is_color(match) == 'w':
-        match.white_notify = False
-    if g.user.is_color(match) == 'b':
-        match.black_notify = False
+    def notify(self):
 
-    return match
+        if self.user.is_color(self.match) == 'w':
+            self.match.white_notify = True
+        if self.user.is_color(self.match) == 'b':
+            self.match.black_notify = True
+       
+    def unnotify(self):
+
+        if self.user.is_color(self.match) == 'w':
+            self.match.white_notify = False
+        if self.user.is_color(self.match) == 'b':
+           self.match.black_notify = False
+
+
+    def commit_to_db(self):
+        db.session.add(self.match)
+        db.session.commit()
 
 @app.route('/_save')
 @login_required
@@ -67,31 +72,23 @@ def toggle_options():
 
     if not match:
         flash('{} is not a valid match url'.format(match_url))
-        return redirect(url_for('index'))    
+        return redirect(url_for('index')) 
 
-    action_dict = {'save': save_game,
-                   'unsave': unsave_game,
-                   'notify': notify,
-                   'unnotify': unnotify}
+    options = OptionToggler(g.user, current_player, match)   
 
-    match = action_dict[action](current_player, match)
+    action_dict = {'save': options.save_game,
+                   'unsave': options.unsave_game,
+                   'notify': options.notify,
+                   'unnotify': options.unnotify}
 
-    db.session.add(match)
-    db.session.commit()
+    action_dict[action]()
+    options.commit_to_db()
 
     white_player_name = match.white_player.username if match.white_player else 'Guest'
     black_player_name = match.black_player.username if match.black_player else 'Guest'
 
-    if match.white_notify and g.user.is_color(match) == 'w':
-        notify_on = True
-    elif match.black_notify and g.user.is_color(match) == 'b':
-        notify_on = True
-    else:
-        notify_on = False
-
     return jsonify(white_player_name=white_player_name, 
-                   black_player_name=black_player_name,
-                   notify_on=notify_on)
+                   black_player_name=black_player_name)
 
 @login_required
 @app.route('/history')
@@ -108,7 +105,12 @@ def get_fen():
     time_of_turn = datetime.datetime.utcnow()
 
     match_url = Rounds.add_turn_to_game(_match_url, fen, time_of_turn)
+
     current_match = Matches.get_match_by_url(match_url)
+    if current_player == 'w':
+        print(current_match.match_url, current_match.black_notify)
+    else:
+        print(current_match.match_url, current_match.white_notify)
 
     session[match_url] = current_player 
 
@@ -176,7 +178,6 @@ def profile(confirm_email_request = False):
     if form.errors:
         for field, error in form.errors.items():
             flash(error[0])
-    print(confirm_email_request)
 
     if confirm_email_request:
         token = security.ts.dumps(g.user.email, salt='email-confirm-key')
