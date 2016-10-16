@@ -24,7 +24,7 @@
 
             {% if current_user.is_authenticated %}
                 <span id=notify_span></span>
-                <span id=save_span></span>
+                <span><a id=save_link href='#'></a></span>
                 <a id='profile_link' href='/profile'>{{ current_user.username }}</a>
             {% else %}
 

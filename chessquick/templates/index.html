@@ -41,31 +41,43 @@
         var current_fen = '{{ fen }}';
         var root_path = '{{ root_path }}';
 
-        var unsave = function () {
+        var save_span = '<a id=save_link href="#">Save!</a>'
+        var unsave_span = '<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>'
+        var action_dict = {
+                'save': showUnsave,
+                'unsave': showSave
+            }        
+        function update(action) {
+            toggled = action_dict[action];
             $.getJSON($SCRIPT_ROOT +'/_save', {
-                action: "unsave",
+                action: action,
                 match_url: "{{ game_url }}",
                 current_player: current_player,
             }, function(data) {
-                 $("#save_span").replaceWith('<span id=save_span><a id=save href="#" onclick=save();>Save!</a> |</span>');
-                updatePlayerStatus(data.white_player_name, data.black_player_name);             
-         })};        
-
-
-        var save = function () {
-            $.getJSON($SCRIPT_ROOT +'/_save', {
-                action: "save",
-                match_url: "{{ game_url }}",
-                current_player: current_player,
-            }, function(data) {
-                $("#save_span").replaceWith('<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>');
+                toggled();
                 updatePlayerStatus(data.white_player_name, data.black_player_name);
          })};
+
+        function showSave() {
+            document.getElementById('save_link').textContent = 'Save!';
+            document.getElementById("save_link").onclick = function (){ 
+                update('save');
+            };
+        };
+
+        function showUnsave() {
+            document.getElementById('save_link').textContent = 'Un-save!';
+            document.getElementById("save_link").onclick = function () {
+                update('unsave');
+            };
+        };
+
+
 
     </script>
 
     <script src="{{url_for('static', filename='js/game.js') }} "></script>
-
+ 
     <p></p>
 
     <div class="buttons">
@@ -79,18 +91,13 @@
 
     {% if game_url|length > 1 and taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}
         <script>
-            $("#save_span").replaceWith('<span id=save_span><a id=save href="#" onclick=save();>Save!</a> |</span>');
+            showSave();      
         </script>
     {% elif game_url|length > 1 and current_user.username in taken_players.values() %}
         <script>
-            $("#save_span").replaceWith('<span id=save_span><a id=unsave href="#" onclick=unsave();>Un-save!</a> |</span>');
+            showUnsave();  
         </script>        
     {% endif %}  
-    {% if not current_match.white_notify and game_url|length > 1 %}
-        <script>
-            $("#notify_span").replaceWith('<a href');
-        </script>
-    {% endif %}
 
 </div>
 {% endblock %}
