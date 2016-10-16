@@ -56,7 +56,27 @@
         <script>
             showUnsave();  
         </script>        
-    {% endif %}  
+    {% endif %} 
+    {% if game_url|length > 1 and current_user.username in taken_players.values() %} 
+        {% if current_user == current_match.white_player and current_match.white_notify %}
+            <script>
+                notifyOn();
+            </script>
+        {% elif current_user == current_match.black_player and current_match.black_notify %}
+            <script>
+                notifyOn();
+            </script>
+        {% endif %}
+        {% if current_user == current_match.white_player and not current_match.white_notify %}
+            <script>
+                notifyOff();
+            </script>
+        {% elif current_user == current_match.black_player and not current_match.black_notify %}
+            <script>
+                notifyOff();
+            </script>
+        {% endif %}        
+    {% endif %}
 
 </div>
 {% endblock %}

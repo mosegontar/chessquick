@@ -21,7 +21,7 @@ def before_request():
 
 def save_game(current_player, match):
 
-    game_closed = bool(match.white_player and match.black_player)
+    game_closed = (match.white_player and match.black_player)
     if not game_closed and (current_player != g.user.is_color(match) and not g.user.is_color(match)):
         g.user.save_match(current_player, match)
 
@@ -34,25 +34,26 @@ def unsave_game(current_player, match):
     if g.user.is_color(match) == 'b':
         match.black_player = None
 
+    match = unnotify(current_player, match)
     return match
 
-def notify(match):
-
+def notify(current_player, match):
+    print('notifying')
     if g.user.is_color(match) == 'w':
         match.white_notify = True
     if g.user.is_color(match) == 'b':
         match.black_notify = True
+   
+    return match
 
-    return True
-
-def unnotify(match):
-
+def unnotify(current_player, match):
+    print(g.user.username)
     if g.user.is_color(match) == 'w':
         match.white_notify = False
     if g.user.is_color(match) == 'b':
         match.black_notify = False
 
-    return False
+    return match
 
 @app.route('/_save')
 @login_required
@@ -70,8 +71,8 @@ def toggle_options():
 
     action_dict = {'save': save_game,
                    'unsave': unsave_game,
-                   'notify': None,
-                   'unnotify': None}
+                   'notify': notify,
+                   'unnotify': unnotify}
 
     match = action_dict[action](current_player, match)
 

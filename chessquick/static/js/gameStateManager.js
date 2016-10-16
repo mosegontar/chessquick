@@ -1,18 +1,24 @@
+
+var action_dict = {
+        'save': showUnsave,
+        'unsave': showSave,
+        'notify': notifyOn,
+        'unnotify': notifyOff
+    }
+
 function share()  {
     prompt("Share your game with this link!", root_path + game_url);
 };
 
-function updatePlayerStatus(white, black) {
+function updatePlayerStatus(white, black, notify) {
     document.getElementById('whiteplayer').textContent = white;
     document.getElementById('blackplayer').textContent = black;
 }
 
 updatePlayerStatus(white, black);  
 
-var action_dict = {
-        'save': showUnsave,
-        'unsave': showSave
-    }
+
+
 
 function update(action) {
     toggled = action_dict[action];
@@ -30,6 +36,8 @@ function showSave() {
     document.getElementById("save_link").onclick = function (){ 
         update('save');
     };
+    update('unnotify');
+    $('#notify_link').hide();
 };
 
 function showUnsave() {
@@ -37,5 +45,21 @@ function showUnsave() {
     document.getElementById("save_link").onclick = function () {
         update('unsave');
     };
+    $('#notify_link').show();    
 };
+
+function notifyOn(notify) {
+    document.getElementById('notify_link').textContent = 'Notify is On';
+    document.getElementById('notify_link').onclick = function () {
+        update('unnotify');
+    };
+};
+
+function notifyOff() {
+    document.getElementById('notify_link').textContent = 'Notify is Off';
+    document.getElementById('notify_link').onclick = function () {
+        update('notify');
+    };
+};
+
 
