@@ -1,3 +1,4 @@
+import json
 import string
 import random
 
@@ -92,9 +93,6 @@ class Users(db.Model):
 
 
 
-
-
-
 class Matches(db.Model):
 
     __tablename__ = 'matches'
@@ -146,10 +144,19 @@ class Matches(db.Model):
     def _set_black_player(self, user):
         self._black_player = user
 
+    def get_state_as_json(self):
+        state = {'match_url': self.match_url,
+                 'white_notify': self.white_notify,
+                 'black_notify': self.black_notify}
 
+        state['recent_move'] = str(self.rounds.all()[-1].date_of_turn)
+        state['recent_fen'] = str(self.rounds.all()[-1].fen_string)
+        state['players'] = {'w': self._white_player.username if self.white_player else 'Guest',
+                            'b': self._black_player.username if self.black_player else 'Guest'}
+        
+        json_state = json.dumps(state)
 
-
-
+        return json_state
 
 
 class Rounds(db.Model):

@@ -1,3 +1,4 @@
+import json
 import datetime
 
 from flask import   render_template, url_for, request, jsonify, session, \
@@ -283,23 +284,25 @@ def index(game_url='/'):
         flash("Couldn't locate game at the address {}".format(match_url))
         match_url = ''
 
-    taken_players = {'w': 'Guest', 'b': 'Guest'}
+    taken_players = {'w': "Guest", 'b': "Guest"}
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
     else:
-        taken_players['w'] = existing_game.white_player.username if existing_game.white_player else 'Guest'
-        taken_players['b'] = existing_game.black_player.username if existing_game.black_player else 'Guest'
+
+        json_state = existing_game.get_state_as_json()
+        game_state = json.loads(json_state)
+
+        fen = game_state['recent_fen']
+        game_url = game_state['match_url']
+        date_of_turn = game_state['recent_move']
+        taken_players = game_state['players']
+
         if g.user == existing_game.white_player:
             session[match_url] = 'w'
-        elif g.user == existing_game.black_player:
+        if g.user == existing_game.black_player:
             session[match_url] = 'b'
-
-        game_rounds = existing_game.rounds.all()
-        most_recent_round = game_rounds[-1]
-        date_of_turn = most_recent_round.date_of_turn
-        fen = most_recent_round.fen_string
 
         current_player = session[match_url] if match_url in session.keys() else ''
 
@@ -307,7 +310,7 @@ def index(game_url='/'):
                            fen=fen, 
                            current_player=current_player,
                            root_path = request.url_root,
-                           game_url=match_url,
+                           game_url=game_url,
                            round_date=date_of_turn,
                            taken_players=taken_players,
                            current_match=existing_game)                          
