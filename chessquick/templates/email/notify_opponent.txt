@@ -1,0 +1,7 @@
+Chessquick.
+
+{{ player }} has moved. It's your turn.
+
+{{ game_url }}
+
+

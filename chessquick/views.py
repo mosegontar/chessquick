@@ -107,10 +107,16 @@ def get_fen():
     match_url = Rounds.add_turn_to_game(_match_url, fen, time_of_turn)
 
     current_match = Matches.get_match_by_url(match_url)
-    if current_player == 'w':
-        print(current_match.match_url, current_match.black_notify)
+
+    if g.user.is_authenticated:
+        playername = g.user.username
     else:
-        print(current_match.match_url, current_match.white_notify)
+        playername = 'Guest'
+
+    if current_player == 'w' and current_match.black_notify:
+        emails.notify_opponent(playername, request.url_root+match_url, current_match.black_player.email)
+    if current_player == 'b' and current_match.white_notify:
+        emails.notify_opponent(playername, request.url_root+match_url, current_match.white_player.email)
 
     session[match_url] = current_player 
 
