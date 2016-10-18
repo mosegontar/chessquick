@@ -25,35 +25,35 @@ class OptionToggler(object):
         self.user = user
         self.current_player = current_player
         self.match = match
+        self.color = user.is_color(match)
 
     def save_game(self):
 
         game_closed = (self.match.white_player and self.match.black_player)
-        if not game_closed and (self.current_player != self.user.is_color(self.match) and not self.user.is_color(self.match)):
+        if not game_closed and (self.current_player != self.color and not self.color):
             self.user.save_match(self.current_player, self.match)
 
     def unsave_game(self):
 
         self.unnotify()
 
-        if self.user.is_color(self.match) == 'w':
+        if self.color == 'w':
             self.match.white_player = None
-        if self.user.is_color(self.match) == 'b':
+        if self.color == 'b':
             self.match.black_player = None
-
 
     def notify(self):
 
-        if self.user.is_color(self.match) == 'w':
+        if self.color == 'w':
             self.match.white_notify = True
-        if self.user.is_color(self.match) == 'b':
+        if self.color == 'b':
             self.match.black_notify = True
        
     def unnotify(self):
 
-        if self.user.is_color(self.match) == 'w':
+        if self.color == 'w':
             self.match.white_notify = False
-        if self.user.is_color(self.match) == 'b':
+        if self.color == 'b':
            self.match.black_notify = False
 
 
@@ -65,24 +65,22 @@ class OptionToggler(object):
 @login_required
 def toggle_options():
 
-    current_player = request.args.get('current_player')
-    action = request.args.get('action')
-    match_url = request.args.get('match_url')
+    data = {k:v for k,v in request.args.items()}
 
-    match = Matches.get_match_by_url(match_url)
+    match = Matches.get_match_by_url(data['match_url'])
 
     if not match:
         flash('{} is not a valid match url'.format(match_url))
         return redirect(url_for('index')) 
 
-    options = OptionToggler(g.user, current_player, match)   
+    options = OptionToggler(g.user, data['current_player'], match)   
 
     action_dict = {'save': options.save_game,
                    'unsave': options.unsave_game,
                    'notify': options.notify,
                    'unnotify': options.unnotify}
 
-    action_dict[action]()
+    action_dict[data['action']]()
     options.commit_to_db()
 
     white_player_name = match.white_player.username if match.white_player else 'Guest'
@@ -99,27 +97,27 @@ def history():
 @app.route('/_get_fen')
 def get_fen():
 
-    fen = request.args.get('fen_move')
-    game_url = request.args.get('match_url')
-    current_player = request.args.get('current_player')
-    _match_url = game_url.strip('/')
-    time_of_turn = datetime.datetime.utcnow()
+    data = {k:v for k,v in request.args.items()}
 
-    match_url = Rounds.add_turn_to_game(_match_url, fen, time_of_turn)
+    time_of_turn = datetime.datetime.utcnow()
+    match_url = Rounds.add_turn_to_game(data['match_url'].strip('/'), 
+                                        data['fen_move'], 
+                                        time_of_turn)
 
     current_match = Matches.get_match_by_url(match_url)
 
-    if g.user.is_authenticated:
-        playername = g.user.username
-    else:
-        playername = 'Guest'
+    email = None
+    if data['current_player'] == 'w' and current_match.black_notify:
+        email = current_match.black_player.email
+    if data['current_player'] == 'b' and current_match.white_notify:
+        email = current_match.white_player.email
 
-    if current_player == 'w' and current_match.black_notify:
-        emails.notify_opponent(playername, request.url_root+match_url, current_match.black_player.email)
-    if current_player == 'b' and current_match.white_notify:
-        emails.notify_opponent(playername, request.url_root+match_url, current_match.white_player.email)
+    if email:
+        playername = 'Guest' if not g.user.is_authenticated else g.user.username
+        url = request.url_root+match_url
+        emails.notify_opponent(playername, url, email)
 
-    session[match_url] = current_player 
+    session[match_url] = data['current_player']
 
     return jsonify(game_url=match_url)
 
@@ -285,6 +283,7 @@ def index(game_url='/'):
         match_url = ''
 
     taken_players = {'w': "Guest", 'b': "Guest"}
+    notify = False
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
@@ -298,11 +297,15 @@ def index(game_url='/'):
         game_url = game_state['match_url']
         date_of_turn = game_state['recent_move']
         taken_players = game_state['players']
+        
+        player_color =  g.user.is_color(existing_game)
+        
+        if player_color: 
+            session[match_url] = player_color
 
-        if g.user == existing_game.white_player:
-            session[match_url] = 'w'
-        if g.user == existing_game.black_player:
-            session[match_url] = 'b'
+            notify_dict = {'w': existing_game.white_notify, 'b': existing_game.black_notify}
+            if notify_dict[player_color]:
+                notify = True
 
         current_player = session[match_url] if match_url in session.keys() else ''
 
@@ -313,4 +316,5 @@ def index(game_url='/'):
                            game_url=game_url,
                            round_date=date_of_turn,
                            taken_players=taken_players,
-                           current_match=existing_game)                          
+                           current_match=existing_game,
+                           notify=notify)                          

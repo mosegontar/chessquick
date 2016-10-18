@@ -32,6 +32,7 @@
         var white = '{{ taken_players["w"] }}';
         var black = '{{ taken_players["b"] }}';
         var game_url = "{{ game_url }}";
+        var notify = '{{ notify }}' === 'True' ? true: false;
     </script>
 
     <script src="{{url_for('static', filename='js/gameStateManager.js') }}"></script>
@@ -48,35 +49,21 @@
         {% endif %} 
     </div>
 
-    {% if game_url|length > 1 and taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}
-        <script>
-            showSave();      
-        </script>
-    {% elif game_url|length > 1 and current_user.username in taken_players.values() %}
-        <script>
-            showUnsave();  
-        </script>        
+    {% if game_url|length > 1 %}
+        {% if taken_players[current_player] == 'Guest' and current_user.username not in taken_players %}     
+            <script> showSave(); </script>    
+        {% elif current_user.username in taken_players.values() %}
+            <script>
+                showUnsave();
+                if (notify == true) {
+                    notifyOn();
+                } else {
+                    notifyOff();
+                }
+            </script>
+        {% endif %} 
     {% endif %} 
-    {% if game_url|length > 1 and current_user.username in taken_players.values() %} 
-        {% if current_user == current_match.white_player and current_match.white_notify %}
-            <script>
-                notifyOn();
-            </script>
-        {% elif current_user == current_match.black_player and current_match.black_notify %}
-            <script>
-                notifyOn();
-            </script>
-        {% endif %}
-        {% if current_user == current_match.white_player and not current_match.white_notify %}
-            <script>
-                notifyOff();
-            </script>
-        {% elif current_user == current_match.black_player and not current_match.black_notify %}
-            <script>
-                notifyOff();
-            </script>
-        {% endif %}        
-    {% endif %}
+
 
 </div>
 {% endblock %}
