@@ -25,7 +25,7 @@ class OptionToggler(object):
         self.user = user
         self.current_player = current_player
         self.match = match
-        self.color = user.is_color(match)
+        self.color = user.get_color_and_notify(match)[0]
 
     def save_game(self):
 
@@ -298,14 +298,10 @@ def index(game_url='/'):
         date_of_turn = game_state['recent_move']
         taken_players = game_state['players']
         
-        player_color =  g.user.is_color(existing_game)
-        
+        player_color, notify =  g.user.get_color_and_notify(existing_game)
+
         if player_color: 
             session[match_url] = player_color
-
-            notify_dict = {'w': existing_game.white_notify, 'b': existing_game.black_notify}
-            if notify_dict[player_color]:
-                notify = True
 
         current_player = session[match_url] if match_url in session.keys() else ''
 

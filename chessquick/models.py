@@ -73,15 +73,15 @@ class Users(db.Model):
 
         return recent_matches
 
-    def is_color(self, match):
+    def get_color_and_notify(self, match):
         matches = self.matches.all()
         if match in matches:
             if match.white_player == self:
-                return 'w'
+                return ('w', match.white_notify)
             else:
-                return 'b'
+                return ('b', match.black_notify)
         else:
-            return False
+            return (False, False)
 
     def save_match(self, current_player, match):
         if current_player == 'w':
@@ -173,7 +173,7 @@ class Rounds(db.Model):
     @staticmethod
     def add_turn_to_game(match_url, fen, date_of_turn):
 
-        current_match = Matches.query.filter_by(match_url=match_url).first()
+        current_match = Matches.get_match_by_url(match_url)
         
         if not current_match:
 
