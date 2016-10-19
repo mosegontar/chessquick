@@ -24,8 +24,13 @@ function update(action) {
         match_url: game_url,
         current_player: current_player,
     }, function(data) {
-        toggled();
-        updatePlayerStatus(data.white_player_name, data.black_player_name);
+        if (data.resp == 'need confirmation') {
+            window.location.assign(root_path+game_url);
+        } else {
+            toggled();
+            updatePlayerStatus(data.white_player_name, data.black_player_name);
+        }
+        
  })};
 
 function showSave() {

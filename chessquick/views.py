@@ -43,11 +43,14 @@ class OptionToggler(object):
             self.match.black_player = None
 
     def notify(self):
-
-        if self.color == 'w':
-            self.match.white_notify = True
-        if self.color == 'b':
-            self.match.black_notify = True
+        if not self.user.email_confirmed:
+            flash('For notifications, you must confirm your email.')
+            return 'need confirmation'
+        else:
+            if self.color == 'w':
+                self.match.white_notify = True
+            if self.color == 'b':
+                self.match.black_notify = True
        
     def unnotify(self):
 
@@ -80,14 +83,16 @@ def toggle_options():
                    'notify': options.notify,
                    'unnotify': options.unnotify}
 
-    action_dict[data['action']]()
-    options.commit_to_db()
+    resp = action_dict[data['action']]()
+    if not resp == 'need confirmation':
+        options.commit_to_db()
 
     white_player_name = match.white_player.username if match.white_player else 'Guest'
     black_player_name = match.black_player.username if match.black_player else 'Guest'
 
     return jsonify(white_player_name=white_player_name, 
-                   black_player_name=black_player_name)
+                   black_player_name=black_player_name,
+                   resp=resp)
 
 @login_required
 @app.route('/history')
