@@ -175,6 +175,8 @@ def profile(confirm_email_request = False):
     form = UserPassEmailForm()
     del form.password
     del form.email
+    del form.remember_me
+
     if form.validate_on_submit():
         g.user.username = form.username.data
         db.session.add(g.user)
@@ -248,7 +250,7 @@ def login():
         user = Users.query.filter(Users.email == form.email.data).first() 
         if (user and user.is_correct_password(form.password.data)) and user.login_type == 'local':
 
-            login_user(user)
+            login_user(user, remember = form.remember_me.data)
             
             next_url = request.args.get('next')
             if next_url and not next_is_valid(next_url.strip('/')):
@@ -298,10 +300,11 @@ def index(game_url='/'):
         date_of_turn = game_state['recent_move']
         taken_players = game_state['players']
         
-        player_color, notify =  g.user.get_color_and_notify(existing_game)
+        if g.user.is_authenticated:
+            player_color, notify =  g.user.get_color_and_notify(existing_game)
 
-        if player_color: 
-            session[match_url] = player_color
+            if player_color: 
+                session[match_url] = player_color
 
         current_player = session[match_url] if match_url in session.keys() else ''
 

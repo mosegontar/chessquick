@@ -160,7 +160,11 @@ div.buttons button#share_button {
     visibility:visible;
     display:block; 
     float:right;
-    background: #6666FF;
+    background-color: #6666FF;
+}
+
+button#share_button.share.clicked {
+    background: green;
 }
 
 /* Profile */

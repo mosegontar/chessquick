@@ -45,7 +45,7 @@
         <button id=submit_move>Submit Move</button>        
 
         {% if game_url|length > 1 %}
-            <button id=share_button onClick="share()">Share Game!</button>
+            <button class=share id=share_button data-clipboard-text="{{ root_path + game_url }}">Copy link!</button>
         {% endif %} 
     </div>
 
@@ -63,5 +63,22 @@
             </script>
         {% endif %} 
     {% endif %} 
+<script>
+    var clipboard = new Clipboard('#share_button');
+
+    clipboard.on('success', function(e) {
+        document.getElementById('share_button').textContent = 'Copied!';
+        $('.share').toggleClass('clicked');
+    })
+
+    clipboard.on('error', function(e) {
+        share();
+    })
+
+
+
+
+</script>
 </div>
+
 {% endblock %}

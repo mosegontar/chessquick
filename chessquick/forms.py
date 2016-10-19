@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError
 from chessquick.models import Users, Matches, Rounds
 
@@ -23,3 +23,5 @@ class UserPassEmailForm(FlaskForm):
             message=u'There is already an account with that username.')])
     password = PasswordField('Password', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    remember_me = BooleanField('remember_me', default=False)
+    
