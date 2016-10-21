@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-<!-- <span id="status"></span></i>{% if round_date %} Last move:{{ round_date }} {% endif %}-->
-
 {% block information %}
 <div class=playerInfo>
     <table>
@@ -35,7 +33,6 @@
         var notify = '{{ notify }}' === 'True' ? true: false;
     </script>
 
-    <script src="{{url_for('static', filename='js/gameStateManager.js') }}"></script>
     <script src="{{url_for('static', filename='js/game.js') }} "></script>
  
     <p></p>
@@ -63,15 +60,18 @@
             </script>
         {% endif %} 
     {% endif %} 
+
 <script>
+    updatePlayerStatus(white, black);  
+
     var clipboard = new Clipboard('#share_button');
 
-    clipboard.on('success', function(e) {
+    clipboard.on('success', function() {
         document.getElementById('share_button').textContent = 'Copied!';
         $('.share').toggleClass('clicked');
     })
 
-    clipboard.on('error', function(e) {
+    clipboard.on('error', function() {
         share();
     })
 </script>

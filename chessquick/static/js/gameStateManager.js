@@ -7,8 +7,6 @@ function updatePlayerStatus(white, black, notify) {
     document.getElementById('blackplayer').textContent = black;
 }
 
-updatePlayerStatus(white, black);  
-
 var action_dict = {
         'save': showUnsave,
         'unsave': showSave,
@@ -17,18 +15,22 @@ var action_dict = {
     }
 
 
-function update(action) {
+function update(action, game_url, current_player, game) {
+    if (game === undefined) {
+        game = true;
+    }
     toggled = action_dict[action];
     $.getJSON($SCRIPT_ROOT +'/_save', {
         action: action,
         match_url: game_url,
         current_player: current_player,
     }, function(data) {
+
         if (data.resp == 'need confirmation') {
             window.location.assign(root_path+game_url);
         } else {
             toggled();
-            updatePlayerStatus(data.white_player_name, data.black_player_name);
+            if (game == true) {updatePlayerStatus(data.white_player_name, data.black_player_name);}
         }
         
  })};
@@ -37,9 +39,9 @@ function showSave() {
     document.getElementById('save_link').textContent = 'Save!';
     $('#save_span').show();    
     document.getElementById("save_link").onclick = function (){ 
-        update('save');
+        update('save', game_url, current_player);
     };
-    update('unnotify');
+    update('unnotify', game_url, current_player);
     $('#notify_link').hide();
     $('#notify_span').hide();
 };
@@ -48,7 +50,7 @@ function showUnsave() {
     document.getElementById('save_link').textContent = 'Un-save!';
     $('#save_span').show();    
     document.getElementById("save_link").onclick = function () {
-        update('unsave');
+        update('unsave', game_url, current_player);
     };
     $('#notify_link').show();  
     $('#notify_span').show();
@@ -57,14 +59,14 @@ function showUnsave() {
 function notifyOn(notify) {
     document.getElementById('notify_link').textContent = 'Notify: On';
     document.getElementById('notify_link').onclick = function () {
-        update('unnotify');
+        update('unnotify', game_url, current_player);
     };
 };
 
 function notifyOff() {
     document.getElementById('notify_link').textContent = 'Notify: Off';
     document.getElementById('notify_link').onclick = function () {
-        update('notify');
+        update('notify', game_url, current_player);
     };
 };
 

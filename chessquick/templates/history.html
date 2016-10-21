@@ -8,20 +8,48 @@
         </tr>
         {% for match, date in current_user.get_recent_matches()[::-1] %}
         <tr>
-            <td><a href='/{{match.match_url}}'>{{ moment(date).calendar() }}</a></td>
-            <td id=matchWhite> {{match.white_player.username if match.white_player.username else 'Guest' }}</td>
-            <td id=matchBlack> {{ match.black_player.username if match.black_player.username else 'Guest' }}</td>
+            <td>
+                <a href='/{{match.match_url}}'>{{ moment(date).calendar() }}</a>
+            </td>
+
+            <td id=matchWhite> 
+                {{match.white_player.username if match.white_player.username else 'Guest' }}
+            </td>
+
+            <td id=matchBlack> 
+                {{ match.black_player.username if match.black_player.username else 'Guest' }}
+            </td>
+            
             {% if current_user.get_color_and_notify(match)[1] %}
-                <td ><a class=notify_cell id='{{ loop.index }}' value='on' href=#> On </a> </td>
+                <td class=notifyCellOn>
+                   <a class=notify_cell data-player='{{ current_user.get_color_and_notify(match)[0] }}' data-match_url = '{{ match.match_url }}' value='unnotify' href=#> On </a> 
+                </td>
             {% else %}
-                <td class=notify_cell id='notify_{{ loop.index }}' value='off'> Off </td>
+                <td class=notifyCellOff>
+                    <a class=notify_cell data-player='{{ current_user.get_color_and_notify(match)[0] }}' data-match_url = '{{ match.match_url }}'  value='notify' href=#> Off </a> 
+                </td>            
             {% endif %}
+
         {% endfor %}
         </tr>
     </table>
 </div>
+
 <script>
-${'#notify_cell'}.on('click', function () {
-    alert($(this).value);
+$('.notify_cell').on('click', function () {
+    var action = $(this).attr('value');
+    var game_url = $(this).attr('data-match_url');
+    var current_player = $(this).attr('data-player');
+    update(action, game_url, current_player, false);
+    if (action === 'unnotify') {
+        $(this).text('Off');
+        $(this).attr('value', 'notify');
+    } else {
+        $(this).text('On');
+        $(this).attr('value', 'unnotify');
+    }
+    $(this).parent().toggleClass('notifyCellOff notifyCellOn');
+    $('#notify_link').hide();
+    $('#notify_span').hide();
 })
 </script>

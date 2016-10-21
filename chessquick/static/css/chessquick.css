@@ -1,6 +1,8 @@
 /* BODY */
 
 body {
+    width: 95%;
+    margin: 0 auto;
     background-color: #FAF8EA;
     font-family: 'PT Mono', monospace;
 }
@@ -200,3 +202,10 @@ table#history_table {
     border-spacing: 1em;
 }
 
+td.notifyCellOff a {
+    color: #A81A28;
+}
+
+td.notifyCellOn a {
+    color: #66b266;
+}
