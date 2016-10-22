@@ -45,7 +45,8 @@ var onSnapEnd = function() {
     undo_move();
   });
   $('#submit_move').bind('click', function() {
-    submit_move();
+    var msg = document.getElementById("textyForm").value;
+    submit_move(msg);
   });  
   freeze_game();
 
@@ -101,11 +102,12 @@ updateStatus();
 
 /////////////////////////////////////////////////////////
 
-var submit_move = (function() {
+var submit_move = (function(msg) {
       $.getJSON($SCRIPT_ROOT + '/_get_fen', {
         fen_move: game.fen(),
         match_url: window.location.pathname,
         current_player: current_player,
+        message: msg
       }, function(data) {
         window.location.assign(root_path+data.game_url);        
     });

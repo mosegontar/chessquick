@@ -1,6 +1,7 @@
 import json
 import datetime
 
+from bs4 import BeautifulSoup
 from flask import   render_template, url_for, request, jsonify, session, \
     redirect, g, flash, make_response, abort
 from flask_login import login_user, logout_user, current_user, login_required
@@ -60,6 +61,8 @@ def get_fen():
 
     data = {k:v for k,v in request.args.items()}
 
+    security.sanitize_comments(data['message'])
+
     time_of_turn = datetime.datetime.utcnow()
     match_url = Rounds.add_turn_to_game(data['match_url'].strip('/'), 
                                         data['fen_move'], 
@@ -118,8 +121,8 @@ def signup():
         token = security.ts.dumps(user.email, salt='email-confirm-key')
         confirm_url = url_for('confirm_email', token=token, _external=True)
         emails.verify_email(user.email, confirm_url)
-
         login_user(user)
+        flash('Please check your email for verification link. Thanks.')
         return redirect(url_for('index'))
 
     if form.errors:

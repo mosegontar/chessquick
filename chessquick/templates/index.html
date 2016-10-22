@@ -38,12 +38,10 @@
     <p></p>
 
     <div class="buttons">
-        <form action=#>
-            <textarea id=textyForm name="Text1" cols="40" rows="4" maxlength=500 style="width: 98.7%" placeholder="Your note:"></textarea>
-            <br/><br/>
-            <button id=undo_move>Undo Move</button>
-            <button type=submit id=submit_move>Submit Move</button>
-        </form>        
+        <textarea id=textyForm name="Text1" cols="40" rows="1" maxlength=500 style="width: 98.7%" placeholder="Your note:"></textarea>
+        <br/><br/>
+        <button id=undo_move>Undo Move</button>
+        <button type=submit id=submit_move>Submit Move</button>     
         {% if game_url|length > 1 %}
             <button class=share id=share_button data-clipboard-text="{{ root_path + game_url }}">Copy link!</button>
         {% endif %} 
@@ -66,12 +64,15 @@
     {% endif %} 
 
 <script>
+
     updatePlayerStatus(white, black);
+    
     if (game.turn() !== current_player) {
         $('textarea#textyForm').hide();
     } else {
         $('textarea#textyForm').show();
     }
+
     var clipboard = new Clipboard('#share_button');
 
     clipboard.on('success', function() {
