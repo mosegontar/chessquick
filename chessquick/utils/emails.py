@@ -24,7 +24,7 @@ def verify_email(recipients, confirm_url):
     send_email(subject, sender, recipients, text, html)
 
 
-def notify_opponent(player, game_url, recipients):
+def notify_opponent(player, game_url, recipients, message):
 
     subject = 'Chessquick: your move!'
     sender = app.config['ADMINS'][0]
@@ -32,7 +32,7 @@ def notify_opponent(player, game_url, recipients):
     if not player or player == 'Guest':
         player = 'Yor opponent'
     with app.app_context():
-        text = render_template('email/notify_opponent.txt', game_url=game_url, player=player)
-        html = render_template('email/notify_opponent.html', game_url=game_url, player=player)
+        text = render_template('email/notify_opponent.txt', game_url=game_url, player=player, message=message)
+        html = render_template('email/notify_opponent.html', game_url=game_url, player=player, message=message)
     send_email(subject, sender, recipients, text, html)
 

@@ -87,9 +87,19 @@
 </div>
 
 <div>
-    {% for post in posts %}
-        {{ post.author.username, post.contents }}
+    <table style="width:100%; margin-top: 2em; ">
+        {% for post in posts[::-1] %}
+            {% if not post.author %}
+                {% set author = 'Guest' %}
+            {% else %}
+                {% set author = post.author.username %}
+            {% endif %}
+        <tr>
+            <td valign="top" style="width: 20%; padding-bottom: 2em;">{{ author }}:</td>
+            <td style="width: 80%; float:right; padding-bottom: 2em;">{{ post.contents }}</td>
+        </tr>
     {% endfor %}
+    </table>
 </div>
 
 

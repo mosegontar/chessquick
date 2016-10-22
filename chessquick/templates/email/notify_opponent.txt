@@ -2,6 +2,13 @@ Chessquick.
 
 {{ player }} has moved. It's your turn.
 
+{% if message|length > 1 %}
+
+    {{ player }}: 
+    {{ message }}
+
+{% endif %}
+
 {{ game_url }}
 
 

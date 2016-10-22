@@ -1,6 +1,16 @@
 <h3>Chessquick.</h3>
 
+<div>
 {{ player }} has moved. It's your turn.
+</div>
+<br/>
+{% if message|length > 1 %}
+<div>
+    {{ player }}: 
+    <br/>
+    {{ message }}
+</div>
+{% endif %}
 
 <p>
 <a href='{{ game_url }}'>{{ game_url }}</a>

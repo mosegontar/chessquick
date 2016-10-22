@@ -84,7 +84,7 @@ def get_fen():
     if email:
         playername = 'Guest' if not g.user.is_authenticated else g.user.username
         url = request.url_root+match_url
-        emails.notify_opponent(playername, url, email)
+        emails.notify_opponent(playername, url, email, message)
 
     session[match_url] = data['current_player']
 
