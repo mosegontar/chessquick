@@ -259,15 +259,16 @@ def index(game_url='/'):
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
+        posts = []
     else:
 
-        json_state = existing_game.get_state_as_json()
-        game_state = json.loads(json_state)
+        state = existing_game.get_state()
 
-        fen = game_state['recent_fen']
-        game_url = game_state['match_url']
-        date_of_turn = game_state['recent_move']
-        taken_players = game_state['players']
+        fen = state['recent_fen']
+        game_url = state['match_url']
+        date_of_turn = state['recent_move']
+        taken_players = state['players']
+        posts = state['posts']
         
         if g.user.is_authenticated:
             player_color, notify =  g.user.get_color_and_notify(existing_game)
@@ -285,4 +286,5 @@ def index(game_url='/'):
                            round_date=date_of_turn,
                            taken_players=taken_players,
                            current_match=existing_game,
-                           notify=notify)                          
+                           notify=notify,
+                           posts=posts)                          

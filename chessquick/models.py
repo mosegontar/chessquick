@@ -144,7 +144,7 @@ class Matches(db.Model):
     def _set_black_player(self, user):
         self._black_player = user
 
-    def get_state_as_json(self):
+    def get_state(self):
         state = {'match_url': self.match_url,
                  'white_notify': self.white_notify,
                  'black_notify': self.black_notify}
@@ -153,10 +153,13 @@ class Matches(db.Model):
         state['recent_fen'] = str(self.rounds.all()[-1].fen_string)
         state['players'] = {'w': self._white_player.username if self.white_player else 'Guest',
                             'b': self._black_player.username if self.black_player else 'Guest'}
+        posts = []
+        for r in self.rounds.all():
+            if r.post:
+                posts.append(r.post)
+        state['posts'] = posts
         
-        json_state = json.dumps(state)
-
-        return json_state
+        return state
 
 class Posts(db.Model):
 

@@ -86,4 +86,13 @@
 </script>
 </div>
 
+<div>
+    {% for post in posts %}
+        {{ post.author.username, post.contents }}
+    {% endfor %}
+</div>
+
+
+
+
 {% endblock %}
