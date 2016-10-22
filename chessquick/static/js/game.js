@@ -107,7 +107,7 @@ var submit_move = (function() {
         match_url: window.location.pathname,
         current_player: current_player,
       }, function(data) {
-        window.location.assign(root_path+data.game_url);
+        window.location.assign(root_path+data.game_url);        
     });
     $("#undo_move").unbind();    
 })

@@ -166,7 +166,7 @@ div.buttons button#share_button {
 }
 
 button#share_button.share.clicked {
-    background: green;
+    background: #66b266;
 }
 
 /* Profile */
@@ -208,4 +208,13 @@ td.notifyCellOff a {
 
 td.notifyCellOn a {
     color: #66b266;
+}
+
+/* Login */
+
+
+.googleLogin, a {
+    margin: 0 auto; 
+    margin-top: 3em;
+    text-decoration: none;
 }

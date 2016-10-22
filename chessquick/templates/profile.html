@@ -3,25 +3,38 @@
 {% block information %}
 <h4 class=saved_games align=center><span>{{ current_user.username }}</span> profile:     </h4>
 {% endblock %}
+
 {% block content %}
+
 <div class=profile align=center>
+
     {% if current_user.email_confirmed %}
+
         <form id=profile_form action="{{ url_for('profile')}}" method="post">
             {% set username = current_user.username %}
             <p>Change username: </p>
-            <span id=change_username>{{ form.username(placeholder=username) }}<input id=save_changes type="
-            submit" name="save_change" value="Save Changes"/></span>
+            <span id=change_username>
+                {{ form.username(placeholder=username) }}
+                <input id=save_changes type="submit" name="save_change" value="Save Changes"/>
+            </span>
             {{ form.csrf_token }}
         </form>
         <br/>
+
     {% else %}
+
         <p> You need to activate your email to change your profile and get notifications </p>
         <form action="{{ url_for('profile', confirm_email_request=True) }}">
             <input id=send_activation type="Submit" value="Resend activation">
         </form>
         <br/>
+
     {% endif %}
-<h4 class=saved_games align=center>saved games:     </h4>    
+
+<h4 class=saved_games align=center>saved games:</h4>    
+
 {% include 'history.html' %}
+
 </div>
+
 {% endblock %}

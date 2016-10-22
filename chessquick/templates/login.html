@@ -3,20 +3,43 @@
 {% block content %}
 <div align=center id=loginDiv >
     <h3>Login</h3>
-    <form align=center action="{{ url_for('login', next=request.args.get('next'), game_url=request.args.get('game_url'))}}" method="POST">
-        {{ form.email.label }}: <br/>
-        {{ form.email(placeholder="your email address")}}<br/>
-        {{ form.password.label }}:<br/>
-        {{ form.password }}<br/>
-        {{ form.remember_me }} Remember me
-        <br>
+    <br/>
+    <form action="{{ url_for('login', next=request.args.get('next'), game_url=request.args.get('game_url'))}}" method="POST">
+        <p class=loginForm>{{ form.email(placeholder="Enter your email")}}</p>
+        <p class=loginForm>{{ form.password(placeholder="Enter your password") }}</p>
+        <p>{{ form.remember_me }} Remember me</p>
         {{ form.csrf_token }}
-        <input type="submit" name="submit"/>
+        <input style='background: none; border: none; color: #0000EE' type="submit" name="submit"/>
     </form>
+    <br/>
+
 </div>
 <br/>
 
-<a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>Google</a>
+
+
+<div align=center style="margin: 0 auto;">
+    <p> or </p>
+    <a href="/signup"> Sign up! </a>
+</div>
+
+
+
+<div align=center style="margin: 0 auto; margin-top: 3em;">
+    <p>or</p>
+    <p>log in with</p>
+    <a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>
+        <script>
+            var hex = ['#4885ed','#db3236', '#f4c20d', '#4885ed', '#3cba54', '#db3236'];
+            var result = colorText('Google', hex);
+            document.write(result);
+        </script>    
+    </a>
+</div>
+
+{% endblock %}
+
+
 <script>
 
     var set_game_url = function () {
@@ -26,12 +49,6 @@
              console.log('game url set');          
      })};        
 
-    $('#googleLogin, #twitterLogin').on('click', set_game_url());
+    $('#googleLogin').on('click', set_game_url());
 
 </script>
-
-
-<div align=center style="margin: 0 auto;">
-    <a href="/signup"> Sign up! </a>
-</div>
-{% endblock %}
