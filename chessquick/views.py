@@ -8,7 +8,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from authomatic.adapters import WerkzeugAdapter
 
 from chessquick import app, db, login_manager, authomatic
-from chessquick.models import Rounds, Users, Matches
+from chessquick.models import Rounds, Users, Matches, Posts
 from chessquick.forms import UserPassEmailForm 
 from chessquick.viewmodel import OptionToggler
 from .utils import security, emails
@@ -60,13 +60,18 @@ def history():
 def get_fen():
 
     data = {k:v for k,v in request.args.items()}
-
-    security.sanitize_comments(data['message'])
-
+   
     time_of_turn = datetime.datetime.utcnow()
+
+    message = security.sanitize_comments(data['message'])
+    if message != '':
+        author = None if not g.user.is_authenticated else g.user
+        post = Posts.add_post(message, author)
+
     match_url = Rounds.add_turn_to_game(data['match_url'].strip('/'), 
                                         data['fen_move'], 
-                                        time_of_turn)
+                                        time_of_turn,
+                                        post)
 
     current_match = Matches.get_match_by_url(match_url)
 

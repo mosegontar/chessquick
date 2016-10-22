@@ -9,4 +9,4 @@ def sanitize_comments(message):
     for tag in soup.findAll(True):
         if tag not in app.config['WHITELIST']:
             tag.extract()
-    return soup.renderContents()
+    return soup.renderContents().decode('utf-8')

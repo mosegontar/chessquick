@@ -158,6 +158,24 @@ class Matches(db.Model):
 
         return json_state
 
+class Posts(db.Model):
+
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = db.relationship('Users', foreign_keys=[author_id])
+    contents = db.Column(db.String(500))
+    round_id = db.Column(db.Integer, db.ForeignKey('rounds.id'))
+
+    @staticmethod
+    def add_post(contents, author=None):
+        post = Posts(contents=contents)
+        print(contents)
+        if author:
+            post.author = author
+        db.session.add(post)
+        db.session.commit()
+        return post
 
 class Rounds(db.Model):
     """Rounds model"""
@@ -169,9 +187,10 @@ class Rounds(db.Model):
     date_of_turn = db.Column(db.DateTime)
     fen_string = db.Column(db.String(80))
     match_id = db.Column(db.Integer, db.ForeignKey('matches.id'))
+    post = db.relationship('Posts', uselist=False, backref='round')
 
     @staticmethod
-    def add_turn_to_game(match_url, fen, date_of_turn):
+    def add_turn_to_game(match_url, fen, date_of_turn, message):
 
         current_match = Matches.get_match_by_url(match_url)
         
@@ -191,10 +210,13 @@ class Rounds(db.Model):
         num_rounds = len(current_match.rounds.all()) - 1 # because starting position is turn number 0
         turn_number = num_rounds + 1
 
+
         round_entry = Rounds(turn_number=turn_number, 
                              date_of_turn=date_of_turn, 
                              fen_string=fen)
 
+        if message: 
+            round_entry.post = message
 
         current_match.rounds.append(round_entry)
 
@@ -203,3 +225,5 @@ class Rounds(db.Model):
         db.session.commit()
 
         return current_match.match_url
+
+
