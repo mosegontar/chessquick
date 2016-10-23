@@ -18,6 +18,10 @@ body {
     nav span#menu_page_title a {text-align: center;}
     .saved_games {display: block; font-size: 75%;}
     div.buttons button {width: 20%;}
+    input {
+        -webkit-appearance: none;
+        -webkit-border-radius: 0;
+    }
 }
 
 /* Nav */
