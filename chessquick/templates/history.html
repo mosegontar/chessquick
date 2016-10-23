@@ -40,10 +40,10 @@
         $('.notify_cell').on('click', function () {
 
             var action = $(this).attr('value');
-            var game_url = $(this).attr('data-match_url');
+            var match_url = $(this).attr('data-match_url');
             var current_player = $(this).attr('data-player');
 
-            update(action, game_url, current_player, false);
+            update(action, match_url, current_player, false);
 
             if (action === 'unnotify') {
                 $(this).text('Off');

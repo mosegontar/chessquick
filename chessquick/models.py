@@ -7,7 +7,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from chessquick import app, db, bcrypt
 
+
 class Users(db.Model):
+    """Users model"""
 
     __tablename__ = 'users'
 
@@ -19,8 +21,9 @@ class Users(db.Model):
     auth_id = db.Column(db.String(64))
     login_type = db.Column(db.String(12))
     # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
-    matches = db.relationship('Matches', 
-                              primaryjoin='or_(Users.id==Matches.white_player_id, Users.id==Matches.black_player_id)',
+    matches = db.relationship('Matches',
+                              primaryjoin='or_(Users.id==Matches.white_player_id, \
+                                           Users.id==Matches.black_player_id)',
                               backref=db.backref('players', lazy='dynamic', uselist=True),
                               lazy='dynamic')
 
@@ -30,14 +33,16 @@ class Users(db.Model):
 
     @password.setter
     def _set_password(self, plaintext):
-        # encoding/decoding utf-8: 
+        """Sets bcrypt-hashed password based on user password"""
+
+        # encoding/decoding utf-8:
         # http://stackoverflow.com/questions/34548846/flask-bcrypt-valueerror-invalid-salt
         self._password = bcrypt.generate_password_hash(plaintext.encode('utf-8')).decode('utf-8')
 
-
     def is_correct_password(self, plaintext):
-        return bcrypt.check_password_hash(self._password, plaintext)
+        """Confirms password by checking its hash"""
 
+        return bcrypt.check_password_hash(self._password, plaintext)
 
     @property
     def is_authenticated(self):
@@ -99,8 +104,8 @@ class Users(db.Model):
         db.session.commit()
 
 
-
 class Matches(db.Model):
+    """Matches model"""
 
     __tablename__ = 'matches'
 
@@ -116,10 +121,13 @@ class Matches(db.Model):
 
     @staticmethod
     def start_new_match():
+        """Create a new match object with unique match_url"""
 
+        # hat tip for this idea:
+        # http://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits-in-python
         while True:
-            _match_url = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)\
-                for _ in range(8))
+            _match_url = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                                 for _ in range(8))
             _url_exists = Matches.query.filter_by(match_url=_match_url).first()
             if not _url_exists:
                 break
@@ -132,6 +140,8 @@ class Matches(db.Model):
 
     @staticmethod
     def get_match_by_url(url):
+        """Return match instance that corresponds to given url"""
+
         match = Matches.query.filter_by(match_url=url).first()
         return match
 
@@ -146,15 +156,17 @@ class Matches(db.Model):
         state['recent_fen'] = str(self.rounds.all()[-1].fen_string)
         state['players'] = {'w': self.white_player.username if self.white_player else 'Guest',
                             'b': self.black_player.username if self.black_player else 'Guest'}
-        posts = []
+        
+        # Get all posts associated with this match                            
+        state['posts'] = []
         for r in self.rounds.all():
             if r.post:
-                posts.append(r.post)
-        state['posts'] = posts
+                state['posts'].append(r.post)
         
         return state
 
 class Posts(db.Model):
+    """Posts class"""
 
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
@@ -176,12 +188,13 @@ class Posts(db.Model):
 
         return post
 
+
 class Rounds(db.Model):
     """Rounds model"""
 
     __tablename__ = 'rounds'
 
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     turn_number = db.Column(db.Integer)
     date_of_turn = db.Column(db.DateTime)
     fen_string = db.Column(db.String(80))
@@ -193,7 +206,7 @@ class Rounds(db.Model):
         """Add match round to database"""
 
         current_match = Matches.get_match_by_url(match_url)
-        
+
         if not current_match:
 
             current_match = Matches.start_new_match()
@@ -207,7 +220,7 @@ class Rounds(db.Model):
             db.session.add(initial_round)
             db.session.commit()
 
-        num_rounds = len(current_match.rounds.all()) - 1 # because starting position is turn number 0
+        num_rounds = len(current_match.rounds.all()) - 1  # because starts at turn number 0
         turn_number = num_rounds + 1
 
         round_entry = Rounds(turn_number=turn_number, 

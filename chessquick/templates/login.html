@@ -5,7 +5,7 @@
 
     <h3>Login</h3>
     <br/>
-    <form action="{{ url_for('login', next=request.args.get('next'), game_url=request.args.get('game_url'))}}" method="POST">
+    <form action="{{ url_for('login', next=request.args.get('next'), match_url=request.args.get('match_url'))}}" method="POST">
 
         <p class=loginForm>{{ form.email(placeholder="Enter your email")}}</p>
         <p class=loginForm>{{ form.password(placeholder="Enter your password") }}</p>
@@ -43,13 +43,13 @@
 
 <script>
 
-    var set_game_url = function () {
-        $.getJSON($SCRIPT_ROOT +'/_set_game_url', {
-            match_url: "{{ game_url }}",
+    var set_match_url = function () {
+        $.getJSON($SCRIPT_ROOT +'/_set_match_url', {
+            match_url: "{{ match_url }}",
         }, function(data) {
              console.log('game url set');          
      })};        
 
-    $('#googleLogin').on('click', set_game_url());
+    $('#googleLogin').on('click', set_match_url());
 
 </script>

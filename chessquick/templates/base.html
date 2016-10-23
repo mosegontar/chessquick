@@ -35,8 +35,8 @@
             {% else %}
 
                 <a id=loginLink href=/login>Login</a> 
-                {% if game_url|length > 1 %}       
-                    <script>$("#loginLink").attr('href', '/login?game_url={{ game_url }}')</script>
+                {% if match_url|length > 1 %}       
+                    <script>$("#loginLink").attr('href', '/login?match_url={{ match_url }}')</script>
                 {% endif %}
 
             {% endif %}

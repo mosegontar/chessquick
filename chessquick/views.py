@@ -97,7 +97,7 @@ def submit_move():
     # Now add current player ('w' or 'b') to session to keep players the same
     session[match_url] = data['current_player']
 
-    return jsonify(game_url=match_url)
+    return jsonify(match_url=match_url)
 
 @app.route('/confirm/<token>')
 def confirm_email(token):
@@ -184,15 +184,15 @@ def profile(confirm_email_request = False):
 
 
 
-@app.route('/_set_game_url')
-def set_game_url():
+@app.route('/_set_match_url')
+def set_match_url():
     """
     Add current game url to session
     
     This allows successful redirect to in progress game after login w/ Google OAuth 2
     """
-    session['game_url'] = request.args.get('match_url')
-    return jsonify(game_url=session['game_url'])
+    session['match_url'] = request.args.get('match_url')
+    return jsonify(match_url=session['match_url'])
 
 
 @app.route('/login/<provider_name>')
@@ -220,10 +220,10 @@ def login_with_oauth(provider_name):
                                       login_type='google')
             login_user(user)
 
-        if 'game_url' not in session.keys():
-            session['game_url'] = '/'
+        if 'match_url' not in session.keys():
+            session['match_url'] = '/'
 
-        return redirect(url_for('index', game_url=session['game_url']))
+        return redirect(url_for('index', match_url=session['match_url']))
     return response
 
 @app.route('/login')
@@ -231,12 +231,12 @@ def login_with_oauth(provider_name):
 def login():
     """Login view function"""
 
-    # Get game_url from request to prepare to redirect back to in-progress game"""
-    game_url = request.args.get('game_url')
-    if not game_url: game_url = '/'
+    # Get match_url from request to prepare to redirect back to in-progress game"""
+    match_url = request.args.get('match_url')
+    if not match_url: match_url = '/'
 
     if g.user is not None and g.user.is_authenticated:
-        return redirect(url_for('index', game_url=game_url))
+        return redirect(url_for('index', match_url=match_url))
 
     form = UserPassEmailForm()
     del form.username # Don't need username to login in; just email/pass
@@ -252,13 +252,13 @@ def login():
             if next_url and not security.next_is_valid(next_url.strip('/')):
                 next_url = None
 
-            return redirect(next_url or url_for('index', game_url=game_url))
+            return redirect(next_url or url_for('index', match_url=match_url))
 
         else:
             flash('Incorrect password or username')
-            return redirect(url_for('login', game_url=game_url))
+            return redirect(url_for('login', match_url=match_url))
 
-    return render_template('login.html', form=form, game_url=game_url)
+    return render_template('login.html', form=form, match_url=match_url)
 
 
 @app.route('/logout')
@@ -271,29 +271,30 @@ def logout():
 
 
 @app.route('/')
-@app.route('/<game_url>')
-def index(game_url='/'):
+@app.route('/<match_url>')
+def index(match_url='/'):
     """Main game view function"""
 
-    match_url = game_url.strip('/')
+    match_url = match_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
     if not existing_game and len(match_url) > 1:
         flash("Couldn't locate game at the address {}".format(match_url))
         match_url = ''
 
+    # taken_players ('Guest') and notify (False) are default settings for match
     taken_players = {'w': "Guest", 'b': "Guest"}
-    notify = False
+    notify = False 
+
     if not existing_game:
         fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
         date_of_turn = None
         posts = []
     else:
-
         state = existing_game.get_state()
 
         fen = state['recent_fen']
-        game_url = state['match_url']
+        match_url = state['match_url']
         date_of_turn = state['recent_move']
         taken_players = state['players']
         posts = state['posts']
@@ -310,7 +311,7 @@ def index(game_url='/'):
                            fen=fen, 
                            current_player=current_player,
                            root_path = request.url_root,
-                           game_url=game_url,
+                           match_url=match_url,
                            round_date=date_of_turn,
                            taken_players=taken_players,
                            current_match=existing_game,

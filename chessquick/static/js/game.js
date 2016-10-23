@@ -108,7 +108,7 @@ var submit_move = (function(msg) {
         current_player: current_player,
         message: msg
       }, function(data) {
-        window.location.assign(root_path+data.game_url);        
+        window.location.assign(root_path+data.match_url);        
     });
     $("#undo_move").unbind();    
 })

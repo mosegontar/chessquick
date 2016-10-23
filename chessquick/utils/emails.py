@@ -15,6 +15,8 @@ def send_email(subject, sender, recipients, text_body, html_body):
     send_async_email(app, msg)
 
 def verify_email(recipients, confirm_url):
+    """Send email with confirmation url to verify address"""
+
     subject = 'Chessquick: verify your email'
     sender = app.config['ADMINS'][0]
     recipients = [recipients]
@@ -25,7 +27,8 @@ def verify_email(recipients, confirm_url):
 
 
 def notify_opponent(player, game_url, recipients, message):
-
+    """Send email to notify opponent"""
+    
     subject = 'Chessquick: your move!'
     sender = app.config['ADMINS'][0]
     recipients = [recipients]
