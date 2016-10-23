@@ -33,3 +33,6 @@ MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
 # Admins
 ADMINS = [os.environ.get('ADMIN_EMAIL')]
+
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+SENDGRID_DEFAULT_FROM = 'chessquick@chessquick.com'

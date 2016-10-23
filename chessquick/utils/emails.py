@@ -1,6 +1,6 @@
 from flask import render_template
 from flask_mail import Message
-from chessquick import mail, app
+from chessquick import mail, app, sendgrid
 from .decorators import async
 
 @async
@@ -13,6 +13,13 @@ def send_email(subject, sender, recipients, text_body, html_body):
     msg.body = text_body
     msg.html = html_body
     send_async_email(app, msg)
+
+def sendgrid_email(recipients, subject, body):
+    
+    sendgrid.send_email(from_email='noreply@chessquick.com',
+                        subject=subject,
+                        to=recipients,
+                        text=body)
 
 def verify_email(recipients, confirm_url):
     """Send email with confirmation url to verify address"""
@@ -37,5 +44,6 @@ def notify_opponent(player, game_url, recipients, message):
     with app.app_context():
         text = render_template('email/notify_opponent.txt', game_url=game_url, player=player, message=message)
         html = render_template('email/notify_opponent.html', game_url=game_url, player=player, message=message)
-    send_email(subject, sender, recipients, text, html)
+    #send_email(subject, sender, recipients, text, html)
+    sendgrid_email(recipients, subject, html)
 

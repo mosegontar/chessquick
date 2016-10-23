@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_moment import Moment
 from flask_mail import Mail
+from flask_sendgrid import FlaskSendGrid
 from authomatic import Authomatic
 
 app = Flask(__name__, instance_relative_config=True)
@@ -28,5 +29,6 @@ authomatic = Authomatic(app.config['AUTHOMATIC_CONFIG'], app.config['AUTHOMATIC_
 moment = Moment(app)
 
 mail = Mail(app)
+sendgrid = FlaskSendGrid(app)
 
 from chessquick import views, models
