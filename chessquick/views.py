@@ -15,16 +15,20 @@ from .utils import security, emails
 
 @login_manager.user_loader
 def load_user(id):
+    """User loader"""
     return Users.query.get(int(id))
 
 @app.before_request
 def before_request():
+    """Before request"""
     g.user = current_user
 
 @app.route('/_save')
 @login_required
 def toggle_options():
+    """Toggle save/notify options based on requested action"""
 
+    # requested action parameters
     data = {k:v for k,v in request.args.items()}
 
     match = Matches.get_match_by_url(data['match_url'])
@@ -54,19 +58,22 @@ def toggle_options():
 @login_required
 @app.route('/history')
 def history():
+    """Game history view function"""
     return render_template('history.html')
 
-@app.route('/_get_fen')
-def get_fen():
+@app.route('/_submit_move')
+def submit_move():
+    """Add new move to database. Notify opponent"""
 
     data = {k:v for k,v in request.args.items()}
    
     time_of_turn = datetime.datetime.utcnow()
 
-    message = security.sanitize_comments(data['message'])
-    if message != '':
+    if data['message'] != '':
         author = None if not g.user.is_authenticated else g.user
-        post = Posts.add_post(message, author)
+        post = Posts.add_post(data['message'], author)
+    else:
+        post = None
 
     match_url = Rounds.add_turn_to_game(data['match_url'].strip('/'), 
                                         data['fen_move'], 
@@ -75,6 +82,7 @@ def get_fen():
 
     current_match = Matches.get_match_by_url(match_url)
 
+    # Determine if opponent has notify turned on. If so, get and send email notice.
     email = None
     if data['current_player'] == 'w' and current_match.black_notify:
         email = current_match.black_player.email
@@ -83,15 +91,18 @@ def get_fen():
 
     if email:
         playername = 'Guest' if not g.user.is_authenticated else g.user.username
-        url = request.url_root+match_url
+        url = request.url_root + match_url
         emails.notify_opponent(playername, url, email, message)
 
+    # Now add current player ('w' or 'b') to session to keep players the same
     session[match_url] = data['current_player']
 
     return jsonify(game_url=match_url)
 
 @app.route('/confirm/<token>')
 def confirm_email(token):
+    """View function called on successful email verification"""
+
     try:
         email = security.ts.loads(token, salt="email-confirm-key", max_age=86400)
     except:
@@ -109,6 +120,8 @@ def confirm_email(token):
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """Sign up view function"""
+
     form = UserPassEmailForm()
     if form.validate_on_submit():
 
@@ -123,11 +136,15 @@ def signup():
                               password=form.password.data, 
                               login_type='local')
 
+        # Send new user email verification instrux with unique url
         token = security.ts.dumps(user.email, salt='email-confirm-key')
         confirm_url = url_for('confirm_email', token=token, _external=True)
         emails.verify_email(user.email, confirm_url)
+
         login_user(user)
+
         flash('Please check your email for verification link. Thanks.')
+
         return redirect(url_for('index'))
 
     if form.errors:
@@ -140,7 +157,9 @@ def signup():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile(confirm_email_request = False):
+    """Profile view function"""
 
+    # All changing of username, so remove other fields from form
     form = UserPassEmailForm()
     del form.password
     del form.email
@@ -163,17 +182,22 @@ def profile(confirm_email_request = False):
     return render_template('profile.html', form=form)
 
 
-def next_is_valid(endpoint):
-    return endpoint in app.view_functions
+
 
 @app.route('/_set_game_url')
 def set_game_url():
+    """
+    Add current game url to session
+    
+    This allows successful redirect to in progress game after login w/ Google OAuth 2
+    """
     session['game_url'] = request.args.get('match_url')
     return jsonify(game_url=session['game_url'])
 
 
 @app.route('/login/<provider_name>')
 def login_with_oauth(provider_name):
+    """Login with Oauth (Google only right now) via authomatic"""
 
     response = make_response()
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
@@ -186,6 +210,7 @@ def login_with_oauth(provider_name):
             if not user:
                 
                 if not result.user.username and result.user.email:
+                    # If result.user doesn't have username attribute, use email handle
                     result.user.username = result.user.email.split('@')[0]
 
                 user = Users.add_user(username=result.user.username, 
@@ -204,7 +229,9 @@ def login_with_oauth(provider_name):
 @app.route('/login')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Login view function"""
 
+    # Get game_url from request to prepare to redirect back to in-progress game"""
     game_url = request.args.get('game_url')
     if not game_url: game_url = '/'
 
@@ -212,7 +239,7 @@ def login():
         return redirect(url_for('index', game_url=game_url))
 
     form = UserPassEmailForm()
-    del form.username
+    del form.username # Don't need username to login in; just email/pass
 
     if form.validate_on_submit():
 
@@ -222,7 +249,7 @@ def login():
             login_user(user, remember = form.remember_me.data)
             
             next_url = request.args.get('next')
-            if next_url and not next_is_valid(next_url.strip('/')):
+            if next_url and not security.next_is_valid(next_url.strip('/')):
                 next_url = None
 
             return redirect(next_url or url_for('index', game_url=game_url))
@@ -234,18 +261,19 @@ def login():
     return render_template('login.html', form=form, game_url=game_url)
 
 
-
 @app.route('/logout')
 @login_required
 def logout():
+    """Logout"""
+
     logout_user()
     return redirect(url_for('index'))
+
 
 @app.route('/')
 @app.route('/<game_url>')
 def index(game_url='/'):
-
-    users = Users.query.all()
+    """Main game view function"""
 
     match_url = game_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None

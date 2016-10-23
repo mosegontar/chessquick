@@ -1,38 +1,23 @@
 /* BODY */
 
 body {
-    width: 95%;
-    margin: 0 auto;
     background-color: #FAF8EA;
-    font-family: 'PT Mono', monospace;
+    font-family: 'PT Mono', monospace;    
+    margin: 0 auto;
+    width: 95%;
 }
 
+/***** Responsive media queries *****/
 @media only screen and (min-width:1200px) {
-    body {
-        margin: 0 auto;
-        max-width: 40%;
-    }
-
+    body {margin: 0 auto; max-width: 40%;}
 }
 
 @media only screen and (max-width:450px) {
-    div.information {
-        margin-bottom: 3em;
-    }
-    div.navigation, div.information {
-        margin-bottom: 1em;
-        font-size: 60%;
-    }
-    nav span#menu_page_title a {
-        text-align: center;
-    }
-    .saved_games {
-        display: block;
-        font-size: 75%;
-    }
-    div.buttons button {
-        width: 20%;
-    }
+    div.information {margin-bottom: 3em;}
+    div.navigation, div.information {margin-bottom: 1em; font-size: 60%;}
+    nav span#menu_page_title a {text-align: center;}
+    .saved_games {display: block; font-size: 75%;}
+    div.buttons button {width: 20%;}
 }
 
 /* Nav */
@@ -85,14 +70,12 @@ div.information {
     height: 5em;
 }
 
-div.information div#messages {
-    height: 25%; 
-    margin: 0 auto; 
-    width: 100%; 
-    color: red;
+div.flashes {
+    height: 25%;
 }
 
-div#messages ul {
+ul.flashes {
+    color: red;
     list-style-type: none;
 }
 
@@ -141,13 +124,13 @@ div.main_game div#board {
 }
 
 button {
-    visibility: hidden;
-    outline: none;
     border: none;
     color: white;
     font-family: 'PT Mono';
     margin-left: 2.5%;
     margin-right: 2.5%;
+    outline: none;
+    visibility: hidden;        
 }
 
 div.buttons button#undo_move {
@@ -159,10 +142,10 @@ div.buttons button#submit_move {
 }
 
 div.buttons button#share_button {
-    visibility:visible;
+    background-color: #6666FF;    
     display:block; 
     float:right;
-    background-color: #6666FF;
+    visibility:visible;    
 }
 
 button#share_button.share.clicked {
@@ -176,10 +159,10 @@ h4.saved_games span {
 }
 
 div.profile input#save_changes, input#logout_button {
-    outline: none;
     border: none;
     color: white;
     font-family: 'PT Mono';
+    outline: none;
 }
 
 div.profile input#logout_button {
@@ -187,19 +170,19 @@ div.profile input#logout_button {
 }
 
 div.profile input#save_changes {
+    background-color: #66b266;    
     margin-left: 1em;
-    background-color: #66b266;
 }
 
 /* History */
 table#history_table {
-    width: 100%; 
-    height: 100%; 
-    text-align: center; 
-    color: black; 
-    vertical-align: middle; 
     border-collapse: separate;
     border-spacing: 1em;
+    color: black;
+    height: 100%; 
+    text-align: center; 
+    vertical-align: middle;
+    width: 100%;   
 }
 
 td.notifyCellOff a {
@@ -212,9 +195,41 @@ td.notifyCellOn a {
 
 /* Login */
 
+#loginButton {
+    background: none; 
+    border: none; 
+    color: #0000EE;
+}
 
-.googleLogin, a {
+div.googleLogin {
+    margin: 0 auto; 
+    margin-top: 3em;
+}
+
+.googleLogin a {
     margin: 0 auto; 
     margin-top: 3em;
     text-decoration: none;
+}
+
+.signup {
+    margin: 0 auto;
+}
+
+/***** Messages ******/
+
+.messages-table {
+    margin-top: 2em;
+    width:100%; 
+}
+
+.messages .author {
+    padding-bottom: 2em;
+    width: 20%;     
+}
+
+.messages .contents {
+    float:right; 
+    width: 80%; 
+    padding-bottom: 2em;
 }

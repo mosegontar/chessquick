@@ -2,33 +2,35 @@
 
 {% block content %}
 <div align=center id=loginDiv >
+
     <h3>Login</h3>
     <br/>
     <form action="{{ url_for('login', next=request.args.get('next'), game_url=request.args.get('game_url'))}}" method="POST">
+
         <p class=loginForm>{{ form.email(placeholder="Enter your email")}}</p>
         <p class=loginForm>{{ form.password(placeholder="Enter your password") }}</p>
         <p>{{ form.remember_me }} Remember me</p>
+
         {{ form.csrf_token }}
-        <input style='background: none; border: none; color: #0000EE' type="submit" name="submit"/>
+
+        <input id=loginButton type="submit" name="submit"/>
+
     </form>
     <br/>
 
 </div>
+
 <br/>
 
-
-
-<div align=center style="margin: 0 auto;">
+<div class=signup align=center>
     <p> or </p>
     <a href="/signup"> Sign up! </a>
 </div>
 
-
-
-<div align=center style="margin: 0 auto; margin-top: 3em;">
+<div class=googleLogin align=center>
     <p>or</p>
     <p>log in with</p>
-    <a id=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>
+    <a class=googleLogin href='{{url_for("login_with_oauth", provider_name="google")}}'>
         <script>
             var hex = ['#4885ed','#db3236', '#f4c20d', '#4885ed', '#3cba54', '#db3236'];
             var result = colorText('Google', hex);
@@ -38,7 +40,6 @@
 </div>
 
 {% endblock %}
-
 
 <script>
 

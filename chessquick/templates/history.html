@@ -35,21 +35,26 @@
     </table>
 </div>
 
-<script>
-$('.notify_cell').on('click', function () {
-    var action = $(this).attr('value');
-    var game_url = $(this).attr('data-match_url');
-    var current_player = $(this).attr('data-player');
-    update(action, game_url, current_player, false);
-    if (action === 'unnotify') {
-        $(this).text('Off');
-        $(this).attr('value', 'notify');
-    } else {
-        $(this).text('On');
-        $(this).attr('value', 'unnotify');
-    }
-    $(this).parent().toggleClass('notifyCellOff notifyCellOn');
-    $('#notify_link').hide();
-    $('#notify_span').hide();
-})
-</script>
+{% if current_user.email_confirmed %}
+    <script>
+        $('.notify_cell').on('click', function () {
+
+            var action = $(this).attr('value');
+            var game_url = $(this).attr('data-match_url');
+            var current_player = $(this).attr('data-player');
+
+            update(action, game_url, current_player, false);
+
+            if (action === 'unnotify') {
+                $(this).text('Off');
+                $(this).attr('value', 'notify');
+            } else {
+                $(this).text('On');
+                $(this).attr('value', 'unnotify');
+            }
+
+            $(this).parent().toggleClass('notifyCellOff notifyCellOn');
+            $('#notify_link, #notify_spn').hide();
+        })
+    </script>
+{% endif %}

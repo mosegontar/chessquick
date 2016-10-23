@@ -59,6 +59,8 @@ class Users(db.Model):
     
     @staticmethod
     def add_user(**kwargs):
+        """Add user to database and return instance"""
+        
         user = Users(**kwargs)
         db.session.add(user)
         db.session.commit()
@@ -66,6 +68,7 @@ class Users(db.Model):
 
 
     def get_recent_matches(self):
+        """Return list of user's recent matches, sorted by date of last move"""
 
         matches = self.matches.all()
         recent_matches = sorted([(match, max(r.date_of_turn for r in match.rounds)) \
@@ -74,6 +77,8 @@ class Users(db.Model):
         return recent_matches
 
     def get_color_and_notify(self, match):
+        """Return a tuple with player's color and notify status for match"""
+
         matches = self.matches.all()
         if match in matches:
             if match.white_player == self:
@@ -84,6 +89,8 @@ class Users(db.Model):
             return (False, False)
 
     def save_match(self, current_player, match):
+        """Save match for user"""
+
         if current_player == 'w':
             match.white_player = self
         else:
@@ -101,8 +108,8 @@ class Matches(db.Model):
     match_url = db.Column(db.String(8), unique=True)
     white_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     black_player_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    _white_player = db.relationship('Users', foreign_keys=[white_player_id])
-    _black_player = db.relationship('Users', foreign_keys=[black_player_id])
+    white_player = db.relationship('Users', foreign_keys=[white_player_id])
+    black_player = db.relationship('Users', foreign_keys=[black_player_id])
     white_notify = db.Column(db.Boolean, default=False)
     black_notify = db.Column(db.Boolean, default=False)
     rounds = db.relationship('Rounds', backref='match', lazy='dynamic')
@@ -128,31 +135,17 @@ class Matches(db.Model):
         match = Matches.query.filter_by(match_url=url).first()
         return match
 
-    @hybrid_property
-    def white_player(self):
-        return self._white_player
-
-    @white_player.setter
-    def _set_white_player(self, user):
-        self._white_player = user
-
-    @hybrid_property
-    def black_player(self):
-        return self._black_player
-
-    @black_player.setter
-    def _set_black_player(self, user):
-        self._black_player = user
-
     def get_state(self):
+        """Return the current state of the match"""
+
         state = {'match_url': self.match_url,
                  'white_notify': self.white_notify,
                  'black_notify': self.black_notify}
 
         state['recent_move'] = str(self.rounds.all()[-1].date_of_turn)
         state['recent_fen'] = str(self.rounds.all()[-1].fen_string)
-        state['players'] = {'w': self._white_player.username if self.white_player else 'Guest',
-                            'b': self._black_player.username if self.black_player else 'Guest'}
+        state['players'] = {'w': self.white_player.username if self.white_player else 'Guest',
+                            'b': self.black_player.username if self.black_player else 'Guest'}
         posts = []
         for r in self.rounds.all():
             if r.post:
@@ -172,12 +165,15 @@ class Posts(db.Model):
 
     @staticmethod
     def add_post(contents, author=None):
+        """Add post to database"""
+
         post = Posts(contents=contents)
-        print(contents)
         if author:
             post.author = author
+
         db.session.add(post)
         db.session.commit()
+
         return post
 
 class Rounds(db.Model):
@@ -194,6 +190,7 @@ class Rounds(db.Model):
 
     @staticmethod
     def add_turn_to_game(match_url, fen, date_of_turn, message):
+        """Add match round to database"""
 
         current_match = Matches.get_match_by_url(match_url)
         
@@ -212,7 +209,6 @@ class Rounds(db.Model):
 
         num_rounds = len(current_match.rounds.all()) - 1 # because starting position is turn number 0
         turn_number = num_rounds + 1
-
 
         round_entry = Rounds(turn_number=turn_number, 
                              date_of_turn=date_of_turn, 

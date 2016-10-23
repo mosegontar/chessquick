@@ -1,0 +1,15 @@
+<div class=messages>
+    <table class=messages-table>
+        {% for post in posts[::-1] %}
+            {% if not post.author %}
+                {% set author = 'Guest' %}
+            {% else %}
+                {% set author = post.author.username %}
+            {% endif %}
+        <tr>
+            <td class="message author" valign="top">{{ author }}:</td>
+            <td class="message contents">{{ post.contents }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>

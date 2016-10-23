@@ -1,12 +1,9 @@
-from bs4 import BeautifulSoup
 from itsdangerous import URLSafeTimedSerializer
 from .. import app
 
+# generate timed random url for email verification
 ts = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
-def sanitize_comments(message):
-    soup = BeautifulSoup(message, 'html.parser')
-    for tag in soup.findAll(True):
-        if tag not in app.config['WHITELIST']:
-            tag.extract()
-    return soup.renderContents().decode('utf-8')
+def next_is_valid(endpoint):
+    """Make sure requested redirect endpoint is valid"""
+    return endpoint in app.view_functions

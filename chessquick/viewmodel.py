@@ -1,4 +1,5 @@
 import json
+from flask import flash
 from chessquick import app, db
 from chessquick.models import Users, Matches, Rounds
 

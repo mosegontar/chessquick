@@ -38,7 +38,7 @@
     <p></p>
 
     <div class="buttons">
-        <textarea id=textyForm name="Text1" cols="40" rows="1" maxlength=500 style="width: 98.7%" placeholder="Your note:"></textarea>
+        <textarea id=textform cols="40" rows="1" maxlength=500 style="width: 98.7%" placeholder="Include note:"></textarea>
         <br/><br/>
         <button id=undo_move>Undo Move</button>
         <button type=submit id=submit_move>Submit Move</button>     
@@ -68,9 +68,9 @@
     updatePlayerStatus(white, black);
     
     if (game.turn() !== current_player) {
-        $('textarea#textyForm').hide();
+        $('textarea#textform').hide();
     } else {
-        $('textarea#textyForm').show();
+        $('textarea#textform').show();
     }
 
     var clipboard = new Clipboard('#share_button');
@@ -86,23 +86,6 @@
 </script>
 </div>
 
-<div>
-    <table style="width:100%; margin-top: 2em; ">
-        {% for post in posts[::-1] %}
-            {% if not post.author %}
-                {% set author = 'Guest' %}
-            {% else %}
-                {% set author = post.author.username %}
-            {% endif %}
-        <tr>
-            <td valign="top" style="width: 20%; padding-bottom: 2em;">{{ author }}:</td>
-            <td style="width: 80%; float:right; padding-bottom: 2em;">{{ post.contents }}</td>
-        </tr>
-    {% endfor %}
-    </table>
-</div>
-
-
-
+{% include 'messages.html' %}
 
 {% endblock %}
