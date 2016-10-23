@@ -30,7 +30,6 @@
             {% if current_user.is_authenticated %}
                 <a id=notify_link href='#'></a><span id=notify_span> | </span>
                 <a id=save_link href='#'></a><span id=save_span> | </span>
-                <a id=logout_link href='/logout'>logout</a><span id=logout_span> | </span>
                 <a id='profile_link' href='/profile'>{{ current_user.username }}</a>
             {% else %}
 
