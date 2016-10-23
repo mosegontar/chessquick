@@ -15,7 +15,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
     send_async_email(app, msg)
 
 def sendgrid_email(recipients, subject, body):
-    
+
     sendgrid.send_email(from_email='noreply@chessquick.com',
                         subject=subject,
                         to=recipients,
@@ -30,7 +30,9 @@ def verify_email(recipients, confirm_url):
     with app.app_context():
         text = render_template('email/activate_email.txt', confirm_url = confirm_url)
         html = render_template('email/activate_email.html', confirm_url = confirm_url)
-    send_email(subject, sender, recipients, text, html)
+#    send_email(subject, sender, recipients, text, html)
+    sendgrid_email(recipients, subject, html)
+
 
 
 def notify_opponent(player, game_url, recipients, message):
