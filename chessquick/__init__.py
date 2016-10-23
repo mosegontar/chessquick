@@ -9,7 +9,9 @@ from authomatic import Authomatic
 app = Flask(__name__, instance_relative_config=True)
 app.static_folder = 'static'
 app.config.from_object('config')
-app.config.from_pyfile('config.py')
+# app.config.from_pyfile('config.py')
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 db = SQLAlchemy(app)
 
