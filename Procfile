@@ -1,0 +1,1 @@
+web: gunicorn chessquick:app --log-file=-
