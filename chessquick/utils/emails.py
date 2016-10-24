@@ -48,7 +48,7 @@ def notify_opponent(player, game_url, recipients, message):
     
     subject = 'Chessquick: your move!'
     sender = app.config['ADMINS'][0]
-    recipients = [recipients]
+    recipients = recipients
     if not player or player == 'Guest':
         player = 'Yor opponent'
     with app.app_context():
