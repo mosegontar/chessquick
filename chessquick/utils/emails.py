@@ -42,7 +42,7 @@ def verify_email(recipients, confirm_url):
 
 
 
-def notify_opponent(player, game_url, recipients, message):
+def notify_opponent(player, game_url, recipients, message=''):
     """Send email to notify opponent"""
     
     subject = 'Chessquick: your move!'

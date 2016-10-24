@@ -92,6 +92,8 @@ def submit_move():
     if email:
         playername = 'Guest' if not g.user.is_authenticated else g.user.username
         url = request.url_root + match_url
+        if post:
+            message = post.contents
         emails.notify_opponent(playername, url, email, message)
 
     # Now add current player ('w' or 'b') to session to keep players the same
