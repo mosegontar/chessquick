@@ -19,8 +19,8 @@ def send_email(subject, sender, recipients, text_body, html_body):
 def sendgrid_email(recipients, subject, body):
 
     from_email = Email("chessquickapp@gmail.com")
-    subject = "Hello World from the SendGrid Python Library!"
-    to_email = Email("test@example.com")
+    subject = subject
+    to_email = Email("mosegontar@gmail.om")
     content = Content("text/plain", "Hello, Email!")
     mail = Mail(from_email, subject, to_email, content)
     response = sendgrid.client.mail.send.post(request_body=mail.get())
@@ -47,7 +47,6 @@ def notify_opponent(player, game_url, recipients, message):
     """Send email to notify opponent"""
     
     subject = 'Chessquick: your move!'
-    sender = app.config['ADMINS'][0]
     recipients = recipients
     if not player or player == 'Guest':
         player = 'Yor opponent'
