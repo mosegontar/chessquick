@@ -137,6 +137,7 @@ button {
     margin-left: 2.5%;
     margin-right: 2.5%;
     outline: none;
+    text-align: center;
     visibility: hidden;        
 }
 
@@ -152,11 +153,13 @@ div.buttons button#share_button {
     background-color: #6666FF;    
     display:block; 
     float:right;
-    visibility:visible;    
+    visibility:visible;
+    text-align: center;    
 }
 
 button#share_button.share.clicked {
     background: #66b266;
+    text-align: center;
 }
 
 /* Profile */
