@@ -20,7 +20,7 @@ def sendgrid_email(recipients, subject, body):
 
     from_email = Email("chessquickapp@gmail.com")
     subject = subject
-    to_email = Email("mosegontar@gmail.com")
+    to_email = Email(recipients)
     content = Content("text/plain", body)
     mail = Mail(from_email, subject, to_email, content)
     response = sendgrid.client.mail.send.post(request_body=mail.get())
@@ -34,11 +34,10 @@ def verify_email(recipients, confirm_url):
 
     subject = 'Chessquick: verify your email'
     sender = app.config['ADMINS'][0]
-    recipients = [recipients]
+    recipients = recipients
     with app.app_context():
         text = render_template('email/activate_email.txt', confirm_url = confirm_url)
         html = render_template('email/activate_email.html', confirm_url = confirm_url)
-#    send_email(subject, sender, recipients, text, html)
     sendgrid_email(recipients, subject, text)
 
 
@@ -53,6 +52,5 @@ def notify_opponent(player, game_url, recipients, message):
     with app.app_context():
         text = render_template('email/notify_opponent.txt', game_url=game_url, player=player, message=message)
         html = render_template('email/notify_opponent.html', game_url=game_url, player=player, message=message)
-    #send_email(subject, sender, recipients, text, html)
     sendgrid_email(recipients, subject, text)
 
