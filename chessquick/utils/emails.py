@@ -18,7 +18,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
 
 def sendgrid_email(recipients, subject, body):
 
-    from_email = Email("test@example.com")
+    from_email = Email("chessquickapp@gmail.com")
     subject = "Hello World from the SendGrid Python Library!"
     to_email = Email("test@example.com")
     content = Content("text/plain", "Hello, Email!")
