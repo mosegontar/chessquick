@@ -17,13 +17,17 @@ def send_email(subject, sender, recipients, text_body, html_body):
     send_async_email(app, msg)
 
 def sendgrid_email(recipients, subject, body):
-    from_email = Email("chessquick@chessquick.com")
+
+    from_email = Email('chessquickapp@gmail.com')
     subject = subject
     to_email = Email(recipients)
-    content = Content('text/plain', body)
-
+    content = Content("text/plain", body)
     mail = Mail(from_email, subject, to_email, content)
-    response =  sendgrid.client.mail.send.post(request_body=mail.get())
+    response = sendgrid.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
+
 
 def verify_email(recipients, confirm_url):
     """Send email with confirmation url to verify address"""
