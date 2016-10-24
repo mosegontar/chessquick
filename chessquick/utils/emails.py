@@ -21,7 +21,7 @@ def sendgrid_email(recipients, subject, body):
     from_email = Email("chessquickapp@gmail.com")
     subject = subject
     to_email = Email("mosegontar@gmail.com")
-    content = Content("text/plain", "Hello, Email!")
+    content = Content("text/plain", body)
     mail = Mail(from_email, subject, to_email, content)
     response = sendgrid.client.mail.send.post(request_body=mail.get())
     print(response.status_code)
