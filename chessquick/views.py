@@ -89,6 +89,7 @@ def submit_move():
     if data['current_player'] == 'b' and current_match.white_notify:
         email = current_match.white_player.email
 
+    message = None
     if email:
         playername = 'Guest' if not g.user.is_authenticated else g.user.username
         url = request.url_root + match_url
