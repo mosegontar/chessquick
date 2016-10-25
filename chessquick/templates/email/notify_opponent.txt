@@ -2,7 +2,7 @@ Chessquick.
 
 {{ player }} has moved. It's your turn.
 
-{% if message|length > 1 %}
+{% if message %}
 
     {{ player }}: 
     {{ message }}
