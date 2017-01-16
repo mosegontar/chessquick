@@ -1,8 +1,9 @@
 import datetime
 import json
-from flask import request
-from test_base import BaseTestCase
+from test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
 from chessquick.models import Users, Matches, Rounds
+
+
 
 class TestViews(BaseTestCase):
 
@@ -18,7 +19,7 @@ class TestViews(BaseTestCase):
 
     def test_home_page_renders_template_with_correct_initial_values(self):
 
-        initial_values = {'fen': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        initial_values = {'fen': INITIAL_FEN,
                           'match_url': '',
                           'round_date': None,
                           'taken_players': {'w': "Guest", 'b': "Guest"},
@@ -31,12 +32,19 @@ class TestViews(BaseTestCase):
         self.assertEqual(context_variables, sorted(initial_values.items()))
 
     def test_submit_move_view_function_creates_adds_match_and_rounds_to_db(self):
-        fen = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq'
-        with self.app.test_client() as client:
-            resp = client.get('/_submit_move?match_url={}&message={}&fen_move={}&current_player={}'.format('/',
-                                                                                                           'message 1',
-                                                                                                           fen,
-                                                                                                           'w'))
-            resp_data_converted_from_bytes = resp.data.decode('utf-8')
-            data = json.loads(resp_data_converted_from_bytes)
+        self.assertEqual(len(Matches.query.all()), 0)
+        self.submit_move('/', FIRST_MOVE_FEN, 'w', '')
+        self.assertEqual(len(Matches.query.all()), 1)
+        self.assertEqual(len(Rounds.query.all()), 2)
+
+    def test_submit_move_view_function_returns_proper_new_match_url(self):
+        
+        resp = self.submit_move('/', FIRST_MOVE_FEN, 'w', '')
+        match = Matches.query.first()
+        match_url = match.match_url
+        
+        resp_data_converted_from_bytes = resp.data.decode('utf-8')
+        data = json.loads(resp_data_converted_from_bytes)
+        
+        self.assertEqual(data['match_url'], match_url)
             

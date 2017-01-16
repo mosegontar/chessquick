@@ -1,16 +1,7 @@
-import datetime
-import json
 from test_base import BaseTestCase
 from chessquick.models import Users, Matches, Rounds
 
 class TestModels(BaseTestCase):
-
-    def add_new_round(self):
-        url = ''
-        fen = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq'
-        date_of_turn = datetime.datetime.utcnow()
-        Rounds.add_turn_to_game(url, fen, date_of_turn, None)
-        return url, fen, date_of_turn
 
     def test_new_round_added_to_database_successfully(self):
         url, fen, date_of_turn = self.add_new_round()
