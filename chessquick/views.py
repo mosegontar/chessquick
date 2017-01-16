@@ -282,41 +282,23 @@ def index(match_url='/'):
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
     if not existing_game and len(match_url) > 1:
         flash("Couldn't locate game at the address {}".format(match_url))
-        match_url = ''
 
-    # taken_players ('Guest') and notify (False) are default settings for match
-    taken_players = {'w': "Guest", 'b': "Guest"}
-    notify = False 
+    state = Matches.get_state(existing_game)
+
+    if g.user.is_authenticated:
+        player_color, state['notify'] =  g.user.get_color_and_notify(existing_game)
+
+        if player_color: 
+            session[match_url] = player_color
 
     if not existing_game:
-        fen = app.config['STARTING_FEN_STRING']
         current_player = 'w'
-        date_of_turn = None
-        posts = []
     else:
-        state = existing_game.get_state()
+        current_player = session[match_url] if state['match_url'] in session.keys() else ''
 
-        fen = state['recent_fen']
-        match_url = state['match_url']
-        date_of_turn = state['recent_move']
-        taken_players = state['players']
-        posts = state['posts']
-        
-        if g.user.is_authenticated:
-            player_color, notify =  g.user.get_color_and_notify(existing_game)
-
-            if player_color: 
-                session[match_url] = player_color
-
-        current_player = session[match_url] if match_url in session.keys() else ''
-
+    state['current_match'] = existing_game
+    
     return render_template('index.html', 
-                           fen=fen, 
-                           current_player=current_player,
                            root_path = request.url_root,
-                           match_url=match_url,
-                           round_date=date_of_turn,
-                           taken_players=taken_players,
-                           current_match=existing_game,
-                           notify=notify,
-                           posts=posts)                          
+                           current_player=current_player,
+                           **state)                          

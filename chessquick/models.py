@@ -145,21 +145,33 @@ class Matches(db.Model):
         match = Matches.query.filter_by(match_url=url).first()
         return match
 
-    def get_state(self):
+    @staticmethod
+    def get_state(match):
         """Return the current state of the match"""
 
-        state = {'match_url': self.match_url,
-                 'white_notify': self.white_notify,
-                 'black_notify': self.black_notify}
+        if not match:
+            state = {}
+            state['fen'] = app.config['STARTING_FEN_STRING']          
+            state['match_url'] = ''
+            state['round_date'] = None            
+            state['taken_players'] = {'w': "Guest", 'b': "Guest"}
+            state['notify'] = False
+            state['posts'] = []
+            return state
 
-        state['recent_move'] = str(self.rounds.all()[-1].date_of_turn)
-        state['recent_fen'] = str(self.rounds.all()[-1].fen_string)
-        state['players'] = {'w': self.white_player.username if self.white_player else 'Guest',
-                            'b': self.black_player.username if self.black_player else 'Guest'}
+        state = {'match_url': match.match_url}
+
+        match_rounds = match.rounds.all()
+
+        state['round_date'] = str(match_rounds[-1].date_of_turn)
+        state['fen'] = str(match_rounds[-1].fen_string)
+        state['taken_players'] = {'w': match.white_player.username if match.white_player else 'Guest',
+                                  'b': match.black_player.username if match.black_player else 'Guest'}
+        state['notify'] = False
         
         # Get all posts associated with this match                            
         state['posts'] = []
-        for r in self.rounds.all():
+        for r in match_rounds:
             if r.post:
                 state['posts'].append(r.post)
         
