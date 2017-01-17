@@ -1,3 +1,5 @@
+import os
+
 from flask import render_template
 from flask_mail import Message
 from sendgrid.helpers.mail import *
@@ -41,7 +43,6 @@ def verify_email(recipients, confirm_url):
     sendgrid_email(recipients, subject, text)
 
 
-
 def notify_opponent(player, game_url, recipients, message=''):
     """Send email to notify opponent"""
     
@@ -54,3 +55,22 @@ def notify_opponent(player, game_url, recipients, message=''):
         html = render_template('email/notify_opponent.html', game_url=game_url, player=player, message=message)
     sendgrid_email(recipients, subject, text)
 
+def process_email(current_player, current_match, url, user, post):
+
+    # Don't process email if API key not available
+    if not os.environ.get('SENDGRID_API_KEY'):
+        return
+
+    # Determine if opponent has notify turned on. If so, get and send email notice.
+    email = None
+    if current_player == 'w' and current_match.black_notify:
+        email = current_match.black_player.email
+    if current_player == 'b' and current_match.white_notify:
+        email = current_match.white_player.email
+
+    message = None
+    if email:
+        playername = 'Guest' if not user.is_authenticated else user.username
+        if post:
+            message = post.contents
+        notify_opponent(playername, url, email, message)

@@ -61,6 +61,7 @@ def history():
     """Game history view function"""
     return render_template('history.html')
 
+
 @app.route('/_submit_move')
 def submit_move():
     """Add new move to database. Notify opponent"""
@@ -68,38 +69,21 @@ def submit_move():
     data = {k:v for k,v in request.args.items()}
    
     time_of_turn = datetime.datetime.utcnow()
-
-    if data['message'] != '':
-        author = None if not g.user.is_authenticated else g.user
-        post = Posts.add_post(data['message'], author)
-    else:
-        post = None
-
+    post = Posts.add_post(data['message'], g.user)
     match_url = Rounds.add_turn_to_game(data['match_url'].strip('/'), 
                                         data['fen_move'], 
                                         time_of_turn,
                                         post)
 
     current_match = Matches.get_match_by_url(match_url)
-
-    # Determine if opponent has notify turned on. If so, get and send email notice.
-    email = None
-    if data['current_player'] == 'w' and current_match.black_notify:
-        email = current_match.black_player.email
-    if data['current_player'] == 'b' and current_match.white_notify:
-        email = current_match.white_player.email
-
-    message = None
-    if email:
-        playername = 'Guest' if not g.user.is_authenticated else g.user.username
-        url = request.url_root + match_url
-        if post:
-            message = post.contents
-        emails.notify_opponent(playername, url, email, message)
+    emails.process_email(data['current_player'], 
+                         current_match, 
+                         request.url_root + match_url, 
+                         g.user,
+                         post)
 
     # Now add current player ('w' or 'b') to session to keep players the same
     session[match_url] = data['current_player']
-
     return jsonify(match_url=match_url)
 
 @app.route('/confirm/<token>')
@@ -183,7 +167,6 @@ def profile(confirm_email_request = False):
         emails.verify_email(g.user.email, confirm_url)
    
     return render_template('profile.html', form=form)
-
 
 
 
@@ -280,16 +263,16 @@ def index(match_url='/'):
 
     match_url = match_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
-    state = Matches.get_state(existing_game, g.user.is_authenticated)
-
+    state = Matches.get_state(existing_game, g.user)
     if not existing_game and len(match_url) > 1:
         flash("Couldn't locate game at the address {}".format(match_url))
 
     if 'player_color' in state.keys(): 
-        session[match_url] = player_color
+        session[match_url] = state['player_color']
 
     if existing_game:
-        state['current_player'] = session[match_url] if state['match_url'] in session.keys() else ''
+        match_url = state['match_url']
+        state['current_player'] = session[match_url] if match_url in session.keys() else ''
     
     return render_template('index.html', 
                            root_path = request.url_root,

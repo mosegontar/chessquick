@@ -71,7 +71,6 @@ class Users(db.Model):
         db.session.commit()
         return user
 
-
     def get_recent_matches(self):
         """Return list of user's recent matches, sorted by date of last move"""
 
@@ -146,7 +145,7 @@ class Matches(db.Model):
         return match
 
     @staticmethod
-    def get_state(match, authenticated_user):
+    def get_state(match, user):
         """Return the current state of the match"""
         
         state = {'current_match': match}
@@ -175,8 +174,10 @@ class Matches(db.Model):
             if r.post:
                 state['posts'].append(r.post)
 
-        if authenticated_user:
-            state['player_color'], state['notify'] = authenticated_user.get_color_and_notify(match)
+        if user.is_authenticated:
+            player_color, state['notify'] = user.get_color_and_notify(match)
+            if player_color:
+                state['player_color'] = player_color
         
         return state
 
@@ -194,8 +195,11 @@ class Posts(db.Model):
     def add_post(contents, author=None):
         """Add post to database"""
 
+        if contents.strip() == '':
+            return None
+
         post = Posts(contents=contents)
-        if author:
+        if author.is_authenticated:
             post.author = author
 
         db.session.add(post)
