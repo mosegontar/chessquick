@@ -148,9 +148,10 @@ class Matches(db.Model):
     @staticmethod
     def get_state(match):
         """Return the current state of the match"""
-
+        
+        state = {}
         if not match:
-            state = {}
+            # inital game values
             state['fen'] = app.config['STARTING_FEN_STRING']          
             state['match_url'] = ''
             state['round_date'] = None            
@@ -159,16 +160,14 @@ class Matches(db.Model):
             state['posts'] = []
             return state
 
-        state = {'match_url': match.match_url}
-
         match_rounds = match.rounds.all()
-
+        state['fen'] = str(match_rounds[-1].fen_string)        
+        state['match_url'] = match.match_url
         state['round_date'] = str(match_rounds[-1].date_of_turn)
-        state['fen'] = str(match_rounds[-1].fen_string)
-        state['taken_players'] = {'w': match.white_player.username if match.white_player else 'Guest',
-                                  'b': match.black_player.username if match.black_player else 'Guest'}
+        state['taken_players'] = {'w': match.white_player.username if match.white_player else 'Guest'}
+        state['taken_players'].update({'b': match.black_player.username if match.black_player else 'Guest'})
         state['notify'] = False
-        
+
         # Get all posts associated with this match                            
         state['posts'] = []
         for r in match_rounds:
