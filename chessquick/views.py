@@ -280,25 +280,17 @@ def index(match_url='/'):
 
     match_url = match_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
+    state = Matches.get_state(existing_game, g.user.is_authenticated)
+
     if not existing_game and len(match_url) > 1:
         flash("Couldn't locate game at the address {}".format(match_url))
 
-    state = Matches.get_state(existing_game)
+    if 'player_color' in state.keys(): 
+        session[match_url] = player_color
 
-    if g.user.is_authenticated:
-        player_color, state['notify'] =  g.user.get_color_and_notify(existing_game)
-
-        if player_color: 
-            session[match_url] = player_color
-
-    if not existing_game:
-        current_player = 'w'
-    else:
-        current_player = session[match_url] if state['match_url'] in session.keys() else ''
-
-    state['current_match'] = existing_game
+    if existing_game:
+        state['current_player'] = session[match_url] if state['match_url'] in session.keys() else ''
     
     return render_template('index.html', 
                            root_path = request.url_root,
-                           current_player=current_player,
                            **state)                          

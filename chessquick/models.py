@@ -146,12 +146,13 @@ class Matches(db.Model):
         return match
 
     @staticmethod
-    def get_state(match):
+    def get_state(match, authenticated_user):
         """Return the current state of the match"""
         
-        state = {}
+        state = {'current_match': match}
         if not match:
             # inital game values
+            state['current_player'] = 'w'
             state['fen'] = app.config['STARTING_FEN_STRING']          
             state['match_url'] = ''
             state['round_date'] = None            
@@ -173,6 +174,9 @@ class Matches(db.Model):
         for r in match_rounds:
             if r.post:
                 state['posts'].append(r.post)
+
+        if authenticated_user:
+            state['player_color'], state['notify'] = authenticated_user.get_color_and_notify(match)
         
         return state
 
