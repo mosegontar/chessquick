@@ -1,4 +1,4 @@
-from .test_base import BaseTestCase, FIRST_MOVE_FEN, SECOND_MOVE_FEN
+from .test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
 from chessquick.models import Matches, Rounds
 
 class TestRoundsModel(BaseTestCase):
@@ -36,7 +36,28 @@ class TestMatchesModel(BaseTestCase):
         self.assertIn(searched_match, Matches.query.all())
         self.assertEqual(searched_match.match_url, match2_url)
 
-    def test_Matches_start_new_match_creates_correct_length_random_match_url(self):
+    def test_start_new_match_creates_correct_length_random_match_url(self):
         self.add_new_round(FIRST_MOVE_FEN)
         self.assertEqual(len(Matches.query.first().match_url), 8)
 
+    def test_get_state_returns_initialization_values_when_passed_None(self):
+        """
+        frozenset used to make dict hashable for use of set operations
+        """
+
+        expected_values = {'fen': INITIAL_FEN,
+                           'match_url': '',
+                           'round_date': None,
+                           'taken_players': frozenset({'w': "Guest", 
+                                                       'b': "Guest"}.items()), 
+                           'current_match': None,
+                           'current_player': 'w',
+                           'notify': False,
+                           'posts': frozenset([])}
+
+        state = Matches.get_state(None)
+        state['taken_players'] = frozenset(state['taken_players'].items())
+        state['posts'] = frozenset(state['posts'])
+
+        unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
+        self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(unmatched))
