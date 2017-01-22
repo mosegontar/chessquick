@@ -41,8 +41,17 @@ class TestUsersModel(BaseTestCase):
         user = self.add_fake_users(1)[0]
         self.assertNotEqual('u1pass', user._password)
 
-    #def test_user_can_save_match(self):
-    #    self.add_new_round
+    def test_user_can_save_match_successfully(self):
+        
+        user = self.add_fake_users(1)[0]
+        self.assertEqual(len(user.matches.all()), 0)
+
+        match_url = self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.get_match_by_url(match_url)
+
+        user.save_match('w', match)
+        self.assertEqual(len(user.matches.all()), 1)
+        self.assertEqual(match.white_player, user)
 
 
 class TestMatchesModel(BaseTestCase):
@@ -86,6 +95,19 @@ class TestMatchesModel(BaseTestCase):
         unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
         self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(unmatched))
 
+
+    def test_match_object_knows_which_color_is_played_by_which_user(self):
+        
+        user1, user2 = self.add_fake_users(2)
+        
+        match_url = self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.get_match_by_url(match_url)
+        user1.save_match('w', match)
+        user2.save_match('b', match)
+
+        self.assertNotEqual(match.white_player, user2)
+        self.assertEqual(match.black_player, user2)
+        self.assertEqual(match.white_player, user1)
 
 class TestRoundsModel(BaseTestCase):
 
