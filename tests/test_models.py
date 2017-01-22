@@ -1,5 +1,5 @@
 from .test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
-from chessquick.models import Matches, Rounds
+from chessquick.models import Matches, Rounds, Users
 
 class TestRoundsModel(BaseTestCase):
 
@@ -61,3 +61,33 @@ class TestMatchesModel(BaseTestCase):
 
         unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
         self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(unmatched))
+
+class TestUsersModel(BaseTestCase):
+
+    def add_fake_users(self, n):
+
+        list_of_users = []
+        for i in range(n):
+            user = Users.add_user(username='user1', 
+                          email='user1@chessquick.com', 
+                          password='u1pass', 
+                          login_type='local')
+            list_of_users.append(user)
+        return list_of_users
+
+    def test_can_add_user_with_local_email_to_db(self):
+
+        self.assertEqual(len(Users.query.all()), 0)
+        user = self.add_fake_users(1)[0]
+        self.assertEqual(len(Users.query.all()), 1)
+        self.assertTrue(Users.query.first() == user)
+
+    def test_user_matches_initially_zero(self):
+        user = self.add_fake_users(1)[0]
+        self.assertEqual(len(user.matches.all()), 0)
+
+    def test_user_local_email_not_initally_confirmed(self):
+
+        user = self.add_fake_users(1)[0]
+        self.assertFalse(user.email_confirmed)
+

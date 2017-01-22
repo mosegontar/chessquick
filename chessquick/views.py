@@ -219,7 +219,8 @@ def login():
 
     # Get match_url from request to prepare to redirect back to in-progress game"""
     match_url = request.args.get('match_url')
-    if not match_url: match_url = '/'
+    if not match_url: 
+        match_url = '/'
 
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index', match_url=match_url))
