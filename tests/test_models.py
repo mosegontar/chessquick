@@ -1,25 +1,56 @@
+from sqlalchemy.exc import IntegrityError
 from .test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
 from chessquick.models import Matches, Rounds, Users
+       
 
-class TestRoundsModel(BaseTestCase):
+class TestUsersModel(BaseTestCase):
 
-    def test_new_round_added_to_database_successfully(self):
-        self.add_new_round(FIRST_MOVE_FEN)
-        round_nums = [r.turn_number for r in Rounds.query.all()]
-        self.assertIn(1, round_nums)
-        self.assertIn(0, round_nums)
-        self.assertEqual(Rounds.query.all()[0].date_of_turn, Rounds.query.all()[1].date_of_turn)
+    def add_fake_users(self, n):
+        list_of_users = []
+        for i in range(1, n+1):
+            user = Users.add_user(username='user{}'.format(i), 
+                                  email='user{}@chessquick.com'.format(i), 
+                                  password='u{}pass'.format(i), 
+                                  login_type='local')
+            list_of_users.append(user)
+        return list_of_users
 
-    def test_Rounds_add_turn_to_game_creates_new_match_if_no_URL_passed(self):
-        self.assertEqual(len(Matches.query.all()), 0)
-        self.add_new_round(FIRST_MOVE_FEN)
-        self.assertEqual(len(Matches.query.all()), 1)
+    def test_can_add_user_with_local_email_to_db(self):
+        self.assertEqual(len(Users.query.all()), 0)
+        user = self.add_fake_users(1)[0]
+        self.assertEqual(len(Users.query.all()), 1)
+        self.assertTrue(Users.query.first() == user)
 
-    def test_newly_added_rounds_associated_with_matches_object(self):
-        self.assertEqual(len(Matches.query.all()), 0)
-        self.add_new_round(FIRST_MOVE_FEN)
-        match = Matches.query.first()
-        self.assertEqual(len(match.rounds.all()), 2)        
+    def test_user_matches_initially_zero(self):
+        user = self.add_fake_users(1)[0]
+        self.assertEqual(len(user.matches.all()), 0)
+
+    def test_local_user_email_not_initally_confirmed(self):
+        user = self.add_fake_users(1)[0]
+        self.assertFalse(user.email_confirmed)
+
+    def test_cannot_have_users_with_duplicate_emails(self):
+
+        user1 = self.add_fake_users(1)[0]            
+        with self.assertRaises(IntegrityError):
+            user = Users.add_user(username='user{}'.format(2), 
+                                  email='user{}@chessquick.com'.format(1), 
+                                  password='u{}pass'.format(2), 
+                                  login_type='local')
+
+    def test_cannot_have_users_with_duplicate_usernames(self):
+
+        user1 = self.add_fake_users(1)[0]            
+        with self.assertRaises(IntegrityError):
+            user = Users.add_user(username='user{}'.format(1), 
+                                  email='user{}@chessquick.com'.format(2), 
+                                  password='u{}pass'.format(2), 
+                                  login_type='local')
+
+    def test_local_user_password_is_hashed(self):
+        user = self.add_fake_users(1)[0]
+        self.assertNotEqual('u1pass', user._password)
+
 
 class TestMatchesModel(BaseTestCase):
 
@@ -62,32 +93,23 @@ class TestMatchesModel(BaseTestCase):
         unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
         self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(unmatched))
 
-class TestUsersModel(BaseTestCase):
 
-    def add_fake_users(self, n):
+class TestRoundsModel(BaseTestCase):
 
-        list_of_users = []
-        for i in range(n):
-            user = Users.add_user(username='user1', 
-                          email='user1@chessquick.com', 
-                          password='u1pass', 
-                          login_type='local')
-            list_of_users.append(user)
-        return list_of_users
+    def test_new_round_added_to_database_successfully(self):
+        self.add_new_round(FIRST_MOVE_FEN)
+        round_nums = [r.turn_number for r in Rounds.query.all()]
+        self.assertIn(1, round_nums)
+        self.assertIn(0, round_nums)
+        self.assertEqual(Rounds.query.all()[0].date_of_turn, Rounds.query.all()[1].date_of_turn)
 
-    def test_can_add_user_with_local_email_to_db(self):
+    def test_Rounds_add_turn_to_game_creates_new_match_if_no_URL_passed(self):
+        self.assertEqual(len(Matches.query.all()), 0)
+        self.add_new_round(FIRST_MOVE_FEN)
+        self.assertEqual(len(Matches.query.all()), 1)
 
-        self.assertEqual(len(Users.query.all()), 0)
-        user = self.add_fake_users(1)[0]
-        self.assertEqual(len(Users.query.all()), 1)
-        self.assertTrue(Users.query.first() == user)
-
-    def test_user_matches_initially_zero(self):
-        user = self.add_fake_users(1)[0]
-        self.assertEqual(len(user.matches.all()), 0)
-
-    def test_user_local_email_not_initally_confirmed(self):
-
-        user = self.add_fake_users(1)[0]
-        self.assertFalse(user.email_confirmed)
-
+    def test_newly_added_rounds_associated_with_matches_object(self):
+        self.assertEqual(len(Matches.query.all()), 0)
+        self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.query.first()
+        self.assertEqual(len(match.rounds.all()), 2) 

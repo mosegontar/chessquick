@@ -19,7 +19,8 @@ class Users(db.Model):
     email = db.Column(db.String(120), unique=True)
     email_confirmed = db.Column(db.Boolean, default=False)
     auth_id = db.Column(db.String(64))
-    login_type = db.Column(db.String(12))
+    # 'local' if we store password else 'oauth'
+    login_type = db.Column(db.String(12)) 
     # http://stackoverflow.com/questions/37156248/flask-sqlalchemy-multiple-foreign-keys-in-relationship
     matches = db.relationship('Matches',
                               primaryjoin='or_(Users.id==Matches.white_player_id, \
