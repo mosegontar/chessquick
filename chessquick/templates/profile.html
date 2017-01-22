@@ -22,19 +22,19 @@
         </form>
         <br/>
 
+<h4 class=saved_games align=center>saved games:</h4>    
+
+{% include 'history.html' %}
+
     {% else %}
 
-        <p> You need to activate your email to change your profile and get notifications </p>
+        <p> You need to confirm your email to change your profile and see your game history </p>
         <form action="{{ url_for('profile', confirm_email_request=True) }}">
             <input id=send_activation type="Submit" value="Resend activation">
         </form>
         <br/>
 
     {% endif %}
-
-<h4 class=saved_games align=center>saved games:</h4>    
-
-{% include 'history.html' %}
 
 </div>
 
