@@ -73,6 +73,19 @@ class TestMatchesModel(BaseTestCase):
         self.add_new_round(FIRST_MOVE_FEN)
         self.assertEqual(len(Matches.query.first().match_url), 8)
 
+    def test_match_object_knows_which_color_is_played_by_which_user(self):
+        
+        user1, user2 = self.add_fake_users(2)
+        
+        match_url = self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.get_match_by_url(match_url)
+        user1.save_match('w', match)
+        user2.save_match('b', match)
+
+        self.assertNotEqual(match.white_player, user2)
+        self.assertEqual(match.black_player, user2)
+        self.assertEqual(match.white_player, user1)
+
     def test_get_state_returns_initialization_values_when_passed_None(self):
         """
         frozenset used to make dict hashable for use of set operations
@@ -95,19 +108,28 @@ class TestMatchesModel(BaseTestCase):
         unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
         self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(unmatched))
 
+    def test_get_state_returns_correct_values_when_passed_existing_game(self):
+        match_url1 = self.add_new_round(FIRST_MOVE_FEN)
+        match_url2 = self.add_new_round(SECOND_MOVE_FEN, match_url1)
+        match = Matches.get_match_by_url(match_url1)
+        user = self.add_fake_users(1)[0]
+        user.save_match('w', match)
 
-    def test_match_object_knows_which_color_is_played_by_which_user(self):
-        
-        user1, user2 = self.add_fake_users(2)
-        
-        match_url = self.add_new_round(FIRST_MOVE_FEN)
-        match = Matches.get_match_by_url(match_url)
-        user1.save_match('w', match)
-        user2.save_match('b', match)
+        state = Matches.get_state(match)
+        latest_round_date = Rounds.query.all()[-1].date_of_turn
+        expected_values = {'fen': SECOND_MOVE_FEN,
+                           'match_url': match_url1,
+                           'round_date': latest_round_date,
+                           'taken_players': frozenset({'w': user.username, 
+                                                       'b': "Guest"}.items()), 
+                           'current_match': match,
+                           'current_player': 'w',
+                           'notify': False,
+                           'posts': frozenset([])}
 
-        self.assertNotEqual(match.white_player, user2)
-        self.assertEqual(match.black_player, user2)
-        self.assertEqual(match.white_player, user1)
+        match_url3 = state['match_url']
+        self.assertEqual(len(list(set([match_url3, match_url1, match_url2]))), 1)
+
 
 class TestRoundsModel(BaseTestCase):
 
