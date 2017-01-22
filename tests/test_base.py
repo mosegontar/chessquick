@@ -36,3 +36,13 @@ class BaseTestCase(TestCase):
                                   'message={}&fen_move={}&current_player={}'.\
                                   format(match_url, message, fen_move, current_player))
             return response
+
+    def add_fake_users(self, n):
+        list_of_users = []
+        for i in range(1, n+1):
+            user = Users.add_user(username='user{}'.format(i), 
+                                  email='user{}@chessquick.com'.format(i), 
+                                  password='u{}pass'.format(i), 
+                                  login_type='local')
+            list_of_users.append(user)
+        return list_of_users

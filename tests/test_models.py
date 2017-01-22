@@ -5,16 +5,6 @@ from chessquick.models import Matches, Rounds, Users
 
 class TestUsersModel(BaseTestCase):
 
-    def add_fake_users(self, n):
-        list_of_users = []
-        for i in range(1, n+1):
-            user = Users.add_user(username='user{}'.format(i), 
-                                  email='user{}@chessquick.com'.format(i), 
-                                  password='u{}pass'.format(i), 
-                                  login_type='local')
-            list_of_users.append(user)
-        return list_of_users
-
     def test_can_add_user_with_local_email_to_db(self):
         self.assertEqual(len(Users.query.all()), 0)
         user = self.add_fake_users(1)[0]
@@ -50,6 +40,9 @@ class TestUsersModel(BaseTestCase):
     def test_local_user_password_is_hashed(self):
         user = self.add_fake_users(1)[0]
         self.assertNotEqual('u1pass', user._password)
+
+    #def test_user_can_save_match(self):
+    #    self.add_new_round
 
 
 class TestMatchesModel(BaseTestCase):
