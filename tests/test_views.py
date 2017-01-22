@@ -1,14 +1,13 @@
 import unittest
 import datetime
 import json
-from test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
+from .test_base import BaseTestCase, INITIAL_FEN, FIRST_MOVE_FEN, SECOND_MOVE_FEN
 from chessquick.models import Matches, Rounds
 
 
 class TestViews(BaseTestCase):
 
     def read_json_object(self, data):
-
         converted_from_bytes = data.decode('utf-8')
         return json.loads(converted_from_bytes)
 

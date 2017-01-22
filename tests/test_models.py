@@ -1,4 +1,4 @@
-from test_base import BaseTestCase, FIRST_MOVE_FEN, SECOND_MOVE_FEN
+from .test_base import BaseTestCase, FIRST_MOVE_FEN, SECOND_MOVE_FEN
 from chessquick.models import Matches, Rounds
 
 
