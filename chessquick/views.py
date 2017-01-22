@@ -255,6 +255,14 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+def assign_current_player(player, match_url):
+
+    if not player:
+        if match_url in session.keys():
+            player = session[match_url]
+        else:
+            player = ''
+    return player
 
 @app.route('/')
 @app.route('/<match_url>')
@@ -263,17 +271,19 @@ def index(match_url='/'):
 
     match_url = match_url.strip('/')
     existing_game = Matches.get_match_by_url(match_url) if match_url else None
-    state = Matches.get_state(existing_game, g.user)
     if not existing_game and len(match_url) > 1:
-        flash("Couldn't locate game at the address {}".format(match_url))
+        flash('Unable to locate game the game "{}"'.format(match_url))
+        return redirect(url_for('index'))
 
-    if 'player_color' in state.keys(): 
-        session[match_url] = state['player_color']
+    # Returns either values for existing game state or initialization values
+    state = Matches.get_state(existing_game)
 
-    if existing_game:
-        match_url = state['match_url']
-        state['current_player'] = session[match_url] if match_url in session.keys() else ''
+    # We assume that current user has not played this particular match before
+    # and update state['current_player'] if assumption is wrong
+    player = False
+    if g.user.is_authenticated:
+        player, state['notify'] = g.user.get_color_and_notify(existing_game)
     
-    return render_template('index.html', 
-                           root_path = request.url_root,
-                           **state)                          
+    state['current_player'] = assign_current_player(player, match_url)
+
+    return render_template('index.html', root_path=request.url_root, **state)

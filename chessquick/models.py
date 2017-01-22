@@ -145,7 +145,7 @@ class Matches(db.Model):
         return match
 
     @staticmethod
-    def get_state(match, user):
+    def get_state(match):
         """Return the current state of the match"""
         
         state = {'current_match': match}
@@ -173,11 +173,6 @@ class Matches(db.Model):
         for r in match_rounds:
             if r.post:
                 state['posts'].append(r.post)
-
-        if user.is_authenticated:
-            player_color, state['notify'] = user.get_color_and_notify(match)
-            if player_color:
-                state['player_color'] = player_color
         
         return state
 
@@ -239,13 +234,16 @@ class Rounds(db.Model):
             db.session.add(initial_round)
             db.session.commit()
 
-        num_rounds = len(current_match.rounds.all()) - 1  # because starts at turn number 0
-        turn_number = num_rounds + 1
+        # Since counting of turn_number begins at zero (initialized board), 
+        # the length of current_match.rounds.all() is always 1 greater than
+        # existing number of turns. Thus, new_turn_number == length.
+        new_turn_number = len(current_match.rounds.all())
 
-        round_entry = Rounds(turn_number=turn_number, 
+        round_entry = Rounds(turn_number=new_turn_number, 
                              date_of_turn=date_of_turn, 
                              fen_string=fen)
 
+        # If the user submitted a message with their move
         if message: 
             round_entry.post = message
 
