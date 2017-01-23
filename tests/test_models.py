@@ -53,6 +53,30 @@ class TestUsersModel(BaseTestCase):
         self.assertEqual(len(user.matches.all()), 1)
         self.assertEqual(match.white_player, user)
 
+    def test_user_get_recent_matches(self):
+        matchurl1 = self.add_new_round(FIRST_MOVE_FEN)
+        matchurl2 = self.add_new_round(FIRST_MOVE_FEN)
+        matchurl3 = self.add_new_round(FIRST_MOVE_FEN)
+        self.add_new_round(SECOND_MOVE_FEN, matchurl2)
+        matchurl4 = self.add_new_round(FIRST_MOVE_FEN)
+        matchurl5 = self.add_new_round(FIRST_MOVE_FEN)
+
+        match1 = Matches.get_match_by_url(matchurl1)
+        match2 = Matches.get_match_by_url(matchurl2)
+        match3 = Matches.get_match_by_url(matchurl3)
+        match4 = Matches.get_match_by_url(matchurl4)
+        match5 = Matches.get_match_by_url(matchurl5)
+
+        user = self.add_fake_users(1)[0]
+        user.save_match('w', match1)
+        user.save_match('b', match2)
+        user.save_match('w', match3)
+        user.save_match('w', match4)
+
+        recent_matches = [m[0] for m in user.get_recent_matches()]
+        expected_values = [match1, match3, match2, match4]
+        self.assertTrue(recent_matches == expected_values, 
+                        "{} \n {}".format(recent_matches, expected_values))
 
 class TestMatchesModel(BaseTestCase):
 
@@ -90,7 +114,6 @@ class TestMatchesModel(BaseTestCase):
         """
         frozenset used to make dict hashable for use of set operations
         """
-
         expected_values = {'fen': INITIAL_FEN,
                            'match_url': '',
                            'round_date': None,
@@ -101,15 +124,18 @@ class TestMatchesModel(BaseTestCase):
                            'notify': False,
                            'posts': frozenset([])}
 
+        state = Matches.get_state(None)
+        state['taken_players'] = frozenset(state['taken_players'].items())
+        state['posts'] = frozenset(state['posts'])
+        self.assertFalse(set(state.items()).symmetric_difference(set(expected_values.items())))
    
-
     def test_get_state_returns_correct_values_when_passed_existing_game(self):
+
         match_url1 = self.add_new_round(FIRST_MOVE_FEN)
         match_url2 = self.add_new_round(SECOND_MOVE_FEN, match_url1)
         match = Matches.get_match_by_url(match_url1)
         user = self.add_fake_users(1)[0]
         user.save_match('w', match)
-
 
         latest_round_date = Rounds.query.all()[-1].date_of_turn
         expected_values = {'fen': SECOND_MOVE_FEN,
@@ -124,9 +150,7 @@ class TestMatchesModel(BaseTestCase):
         state = Matches.get_state(match)
         state['taken_players'] = frozenset(state['taken_players'].items())
         state['posts'] = frozenset(state['posts'])
-        unmatched = set(state.items()).symmetric_difference(set(expected_values.items()))
-        self.assertEqual(len(unmatched), 0, 'Unmatched items: {}'.format(state.items()))
-
+        self.assertFalse(set(state.items()).symmetric_difference(set(expected_values.items())))
 
 class TestRoundsModel(BaseTestCase):
 
