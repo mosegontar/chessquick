@@ -53,5 +53,32 @@ class TestOptionToggler(BaseTestCase):
         self.assertEqual(match.white_player, user1)        
         self.assertNotEqual(match.black_player, user2)        
 
+    def test_cannot_set_notify_True_if_email_unconfirmed(self):
+
+        user = self.add_fake_users(1)[0]
+        _match_url = self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.get_match_by_url(_match_url)
+
+        ot = OptionToggler(user, 'w', match)
+        ot.save_game()
+
+        self.assertEqual('need confirmation', ot.notify())
+
+    def test_can_set_notify_True_if_email_unconfirmed(self):
+
+        user = self.add_fake_users(1)[0]
+        user.email_confirmed = True
+        _match_url = self.add_new_round(FIRST_MOVE_FEN)
+        match = Matches.get_match_by_url(_match_url)
+        user.save_match('w', match)
+        
+        ot = OptionToggler(user, 'w', match)
+        self.assertEqual(match.white_notify, False)        
+        ot.notify()
+        
+        self.assertEqual(match.white_notify, True)        
+
+
+
 
 
