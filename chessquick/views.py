@@ -231,7 +231,7 @@ def login():
     if form.validate_on_submit():
 
         user = Users.query.filter(Users.email == form.email.data).first() 
-        if (user and user.is_correct_password(form.password.data)) and user.login_type == 'local':
+        if (user and user.login_type == 'local') and user.is_correct_password(form.password.data):
 
             login_user(user, remember = form.remember_me.data)
             
@@ -242,7 +242,7 @@ def login():
             return redirect(next_url or url_for('index', match_url=match_url))
 
         else:
-            flash('Incorrect password or username')
+            flash('Incorrect password, username, or login method.')
             return redirect(url_for('login', match_url=match_url))
 
     return render_template('login.html', form=form, match_url=match_url)
