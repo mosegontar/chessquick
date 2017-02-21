@@ -130,7 +130,7 @@ def signup():
 
         login_user(user)
 
-        flash('Please check your email for verification link. Thanks.')
+        flash('Please check your email for verification link.')
 
         return redirect(url_for('index'))
 
